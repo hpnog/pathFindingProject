@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QMenuBar, QMenu, QAction, QStatusBar, QWidget, QPlainTextEdit, QGridLayout, QPushButton, QFrame, QVBoxLayout, QHBoxLayout
+from PyQt5.QtWidgets import QMenuBar, QMenu, QAction, QStatusBar, QWidget, QPlainTextEdit, QPushButton, QFrame, QVBoxLayout, QHBoxLayout
 from PyQt5.QtGui import QColor
 from ui.drawingBoard import DrawingBoard
 
@@ -39,18 +39,17 @@ class Ui_MainWindow(object):
         self.textBrowser.setObjectName("textBrowser")
 
         # Buttons
-        self.pushButton = QPushButton()
-        self.pushButton.setObjectName("pushButton")
+        self.pushButton_grid = QPushButton()
+        self.pushButton_grid.setObjectName("pushButton_grid")
 
         # Lines
         self.line = QFrame(self.bottomInteractionwidget)
-        # self.line.setGeometry(10, 270, 581, 20)
         self.line.setFrameShape(QFrame.HLine)
         self.line.setFrameShadow(QFrame.Sunken)
         self.line.setObjectName("line")
 
         self.bottomInteractionLayout.addWidget(self.textBrowser)
-        self.bottomInteractionLayout.addWidget(self.pushButton)
+        self.bottomInteractionLayout.addWidget(self.pushButton_grid)
         self.bottomInteractionwidget.setLayout(self.bottomInteractionLayout)
 
         self.bottomLayout.addWidget(self.line)
@@ -102,11 +101,12 @@ class Ui_MainWindow(object):
         self.problemwidget.setOutput(self.textBrowser)
         self.problemwidget.setStatusBar(self.statusbar)
 
-#        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+    def setGenerateGridAction(self):
+        self.pushButton_grid.clicked.connect(self.problemwidget.triggerFullGrid)
 
     def setTextsUi(self, MainWindow):
         MainWindow.setWindowTitle("Path Finding Algorithms")
-        self.pushButton.setText("Generate Path")
+        self.pushButton_grid.setText("Generate Grid")
         self.menuAlgorithm.setTitle("Algorithm")
         self.menuFile.setTitle("File")
         self.actionDijkstra.setText("Dijkstra")

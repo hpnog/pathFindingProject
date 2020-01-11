@@ -1,8 +1,8 @@
 from PyQt5.QtWidgets import QWidget
+from PyQt5.QtGui import QPainter, QPen, QColor
 
-CELL_W = 10
-CELL_H = 10
-CELL_SPACING = 1
+CELL_SIZE = 20
+CELL_SPACING = 2
 
 class DrawingBoard(QWidget) :
     def __init__(self, obj):
@@ -10,19 +10,22 @@ class DrawingBoard(QWidget) :
 
         self.out, self.statusBar = None, None
         self.cellWidth, cellHeight = 0, 0
+        self.gridUpdates = []
+        self.grid = []
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
 
         newWidth = self.width()
         newHeight = self.height()
-        newCellWidth = newWidth // (CELL_W + CELL_SPACING)
-        newCellHeight = newHeight // (CELL_H + CELL_SPACING)
+        newCellWidth = newWidth // (CELL_SIZE + CELL_SPACING)
+        newCellHeight = newHeight // (CELL_SIZE + CELL_SPACING)
 
-        if newCellWidth != self.cellWidth or newCellHeight != slf.cellHeight:
-            self.cellWidth = newWidth
-            self.cellHeight = newHeight
+        if newCellWidth != self.cellWidth or newCellHeight != self.cellHeight:
+            self.cellWidth = newCellWidth
+            self.cellHeight = newCellHeight
             self.print("[DrawingBoard] New Width: " + str(newCellWidth) + " new height: " + str(newCellHeight))
+            
 
     def setOutput(self, obj):
         self.out = obj
@@ -37,4 +40,33 @@ class DrawingBoard(QWidget) :
         if self.statusBar is not None:
             self.statusBar.showMessage(string, 1500)
 
-        print(string)
+    def triggerFullGrid(self):
+        self.grid = [[0 for i in range(self.cellWidth)] for j in range(self.cellHeight)]
+            
+        self.gridUpdates = []
+        for j in range(self.cellHeight):
+            for i in range(self.cellWidth):
+                self.gridUpdates.append((i, j)) 
+        self.repaint()
+        self.print("[DrawingBoard] Full Grid painting triggered...")
+        
+    def paintEvent(self, event):
+
+        painter = QPainter()
+        gridUpdates = self.gridUpdates[:]
+
+        defaultPen = QPen(QColor("#eeeeeeee"), CELL_SIZE)
+        while len(gridUpdates) > 0:
+
+            painter.begin(self)
+            painter.setPen(defaultPen)
+            newUpdate = gridUpdates.pop()
+
+            painter.drawLine(
+                                newUpdate[0] * (CELL_SIZE + CELL_SPACING) + CELL_SPACING, 
+                                newUpdate[1] * (CELL_SIZE + CELL_SPACING) + CELL_SPACING + CELL_SIZE // 2,
+                                newUpdate[0] * (CELL_SIZE + CELL_SPACING) + CELL_SPACING,
+                                newUpdate[1] * (CELL_SIZE + CELL_SPACING) + CELL_SPACING + CELL_SIZE // 2,
+                            )
+            painter.end()
+

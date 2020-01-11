@@ -1,5 +1,6 @@
 import sys
-from PyQt5.QtWidgets import QMainWindow, QApplication # QPushButton, QSizePolicy, QApplication
+
+from PyQt5.QtWidgets import QMainWindow, QApplication
 from ui.uiMain import Ui_MainWindow
 
 if __name__ == "__main__":
@@ -10,5 +11,7 @@ if __name__ == "__main__":
     ui.setupUi(MainWindow)
     MainWindow.show()
     
+    ui.setGenerateGridAction()
+
     # Runs the App and returns its exit status
     sys.exit(app.exec_())
