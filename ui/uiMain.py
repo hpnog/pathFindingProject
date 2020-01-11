@@ -1,78 +1,78 @@
-# -*- coding: utf-8 -*-
-
-# Form implementation generated from reading ui file 'startingPathFinding.ui'
-#
-# Created by: PyQt4 UI code generator 4.12.1
-#
-# WARNING! All changes made in this file will be lost!
-
-from PyQt4 import QtCore, QtGui
-
-try:
-    _fromUtf8 = QtCore.QString.fromUtf8
-except AttributeError:
-    def _fromUtf8(s):
-        return s
-
-try:
-    _encoding = QtGui.QApplication.UnicodeUTF8
-    def _translate(context, text, disambig):
-        return QtGui.QApplication.translate(context, text, disambig, _encoding)
-except AttributeError:
-    def _translate(context, text, disambig):
-        return QtGui.QApplication.translate(context, text, disambig)
+from PyQt5.QtWidgets import QMenuBar, QMenu, QAction, QStatusBar, QWidget, QTextBrowser, QGridLayout, QPushButton, QFrame
+from PyQt5.QtGui import QColor
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         # Window Configurations
-        MainWindow.setObjectName(_fromUtf8("MainWindow"))
+        MainWindow.setObjectName("MainWindow")
         MainWindow.resize(600, 400)
-        MainWindow.setMinimumSize(QtCore.QSize(600, 400))
+        MainWindow.setMinimumSize(600, 400)
 
         # Central Widget Configurations
-        self.centralwidget = QtGui.QWidget(MainWindow)
-        self.centralwidget.setObjectName(_fromUtf8("centralwidget"))
+        self.centralGrid = QGridLayout()
+        self.centralwidget = QWidget(MainWindow)
+        self.centralwidget.setAutoFillBackground(True)
+        newPallete = self.centralwidget.palette()
+        newPallete.setColor(self.centralwidget.backgroundRole(), QColor("#bbbbbbbb"))
+        self.centralwidget.setPalette(newPallete)
+        self.centralwidget.setObjectName("centralwidget")
 
-        # Buttons
-        self.pushButton = QtGui.QPushButton(self.centralwidget)
-        self.pushButton.setGeometry(QtCore.QRect(480, 300, 97, 27))
-        self.pushButton.setObjectName(_fromUtf8("pushButton"))
-
-        # Lines
-        self.line = QtGui.QFrame(self.centralwidget)
-        self.line.setGeometry(QtCore.QRect(10, 270, 581, 20))
-        self.line.setFrameShape(QtGui.QFrame.HLine)
-        self.line.setFrameShadow(QtGui.QFrame.Sunken)
-        self.line.setObjectName(_fromUtf8("line"))
+        # Bottom Widget Configurations
+        self.bottomGrid = QGridLayout()
+        self.bottomwidget = QWidget()
+        self.bottomwidget.setAutoFillBackground(True)
+        newPallete = self.bottomwidget.palette()
+        newPallete.setColor(self.bottomwidget.backgroundRole(), QColor("#00000000"))
+        self.bottomwidget.setPalette(newPallete)
+        self.bottomwidget.setObjectName("bottomwidget")
+        self.bottomwidget.setMaximumHeight(150)
 
         # Console
-        self.textBrowser = QtGui.QTextBrowser(self.centralwidget)
-        self.textBrowser.setGeometry(QtCore.QRect(10, 290, 450, 50))
-        self.textBrowser.setObjectName(_fromUtf8("textBrowser"))
+        self.textBrowser = QTextBrowser()
+        self.textBrowser.setObjectName("textBrowser")
+
+        # Buttons
+        self.pushButton = QPushButton()
+        self.pushButton.setObjectName("pushButton")
+
+        # Lines
+        self.line = QFrame(self.bottomwidget)
+        # self.line.setGeometry(10, 270, 581, 20)
+        self.line.setFrameShape(QFrame.HLine)
+        self.line.setFrameShadow(QFrame.Sunken)
+        self.line.setObjectName("line")
+
+        self.bottomGrid.addWidget(self.line, 0, 0, 1, 2)
+        self.bottomGrid.addWidget(self.textBrowser, 1, 0, 1, 1)
+        self.bottomGrid.addWidget(self.pushButton, 1, 1, 1, 1)
+        self.bottomwidget.setLayout(self.bottomGrid)
+
+        self.centralGrid.addWidget(self.bottomwidget)
+        self.centralwidget.setLayout(self.centralGrid)
 
         MainWindow.setCentralWidget(self.centralwidget)
-
+#
         # Menus
-        self.menubar = QtGui.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 600, 25))
-        self.menubar.setObjectName(_fromUtf8("menubar"))
-        self.menuAlgorithm = QtGui.QMenu(self.menubar)
-        self.menuAlgorithm.setFocusPolicy(QtCore.Qt.NoFocus)
-        self.menuAlgorithm.setObjectName(_fromUtf8("menuAlgorithm"))
-        self.menuFile = QtGui.QMenu(self.menubar)
-        self.menuFile.setObjectName(_fromUtf8("menuFile"))
+        self.menubar = QMenuBar(MainWindow)
+        self.menubar.setGeometry(0, 0, 600, 25)
+        self.menubar.setObjectName("menubar")
+
+        self.menuAlgorithm = QMenu(self.menubar)
+        self.menuAlgorithm.setObjectName("menuAlgorithm")
+        self.menuFile = QMenu(self.menubar)
+        self.menuFile.setObjectName("menuFile")
         MainWindow.setMenuBar(self.menubar)
 
-        self.actionDijkstra = QtGui.QAction(MainWindow)
-        self.actionDijkstra.setObjectName(_fromUtf8("actionDijkstra"))
-        self.actionExport = QtGui.QAction(MainWindow)
-        self.actionExport.setObjectName(_fromUtf8("actionExport"))
-        self.actionSave = QtGui.QAction(MainWindow)
-        self.actionSave.setObjectName(_fromUtf8("actionSave"))
-        self.actionLoad = QtGui.QAction(MainWindow)
-        self.actionLoad.setObjectName(_fromUtf8("actionLoad"))
-        self.actionExit = QtGui.QAction(MainWindow)
-        self.actionExit.setObjectName(_fromUtf8("actionExit"))
+        self.actionDijkstra = QAction(MainWindow)
+        self.actionDijkstra.setObjectName("actionDijkstra")
+        self.actionExport = QAction(MainWindow)
+        self.actionExport.setObjectName("actionExport")
+        self.actionSave = QAction(MainWindow)
+        self.actionSave.setObjectName("actionSave")
+        self.actionLoad = QAction(MainWindow)
+        self.actionLoad.setObjectName("actionLoad")
+        self.actionExit = QAction(MainWindow)
+        self.actionExit.setObjectName("actionExit")
         self.menuAlgorithm.addAction(self.actionDijkstra)
         self.menuFile.addAction(self.actionSave)
         self.menuFile.addAction(self.actionLoad)
@@ -82,20 +82,21 @@ class Ui_MainWindow(object):
         self.menubar.addAction(self.menuAlgorithm.menuAction())
 
         # Status Bar
-        self.statusbar = QtGui.QStatusBar(MainWindow)
-        self.statusbar.setObjectName(_fromUtf8("statusbar"))
+        self.statusbar = QStatusBar(MainWindow)
+        self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
 
-        self.retranslateUi(MainWindow)
-        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        self.setTextsUi(MainWindow)
+#        QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
-    def retranslateUi(self, MainWindow):
-        MainWindow.setWindowTitle(_translate("MainWindow", "Path Finding Algorithms", None))
-        self.pushButton.setText(_translate("MainWindow", "PushButton", None))
-        self.menuAlgorithm.setTitle(_translate("MainWindow", "Algorithm", None))
-        self.menuFile.setTitle(_translate("MainWindow", "File", None))
-        self.actionDijkstra.setText(_translate("MainWindow", "Dijkstra", None))
-        self.actionExport.setText(_translate("MainWindow", "Export..", None))
-        self.actionSave.setText(_translate("MainWindow", "Save", None))
-        self.actionLoad.setText(_translate("MainWindow", "Load", None))
-        self.actionExit.setText(_translate("MainWindow", "Exit", None))
+    def setTextsUi(self, MainWindow):
+        MainWindow.setWindowTitle("Path Finding Algorithms")
+        self.pushButton.setText("PushButton")
+        self.menuAlgorithm.setTitle("Algorithm")
+        self.menuFile.setTitle("File")
+        self.actionDijkstra.setText("Dijkstra")
+        self.actionExport.setText("Export..")
+        self.actionSave.setText("Save")
+        self.actionLoad.setText("Load")
+        self.actionExit.setText("Exit")
+        self.textBrowser.setText("<Begining of Output Console>")

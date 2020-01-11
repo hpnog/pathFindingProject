@@ -1,11 +1,11 @@
 import sys
-from PyQt4 import QtGui
+from PyQt5.QtWidgets import QMainWindow, QApplication # QPushButton, QSizePolicy, QApplication
 from ui.uiMain import Ui_MainWindow
 
 if __name__ == "__main__":
-    app = QtGui.QApplication(sys.argv)
+    app = QApplication(sys.argv)
     
-    MainWindow = QtGui.QMainWindow()
+    MainWindow = QMainWindow()
     ui = Ui_MainWindow()
     ui.setupUi(MainWindow)
     MainWindow.show()
