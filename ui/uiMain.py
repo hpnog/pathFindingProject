@@ -1,31 +1,37 @@
-from PyQt5.QtWidgets import QMenuBar, QMenu, QAction, QStatusBar, QWidget, QTextBrowser, QGridLayout, QPushButton, QFrame
+from PyQt5.QtWidgets import QMenuBar, QMenu, QAction, QStatusBar, QWidget, QTextBrowser, QGridLayout, QPushButton, QFrame, QVBoxLayout, QHBoxLayout
 from PyQt5.QtGui import QColor
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         # Window Configurations
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(600, 400)
+        MainWindow.resize(800, 600)
         MainWindow.setMinimumSize(600, 400)
 
         # Central Widget Configurations
-        self.centralGrid = QGridLayout()
+        self.centralLayout = QVBoxLayout()
         self.centralwidget = QWidget(MainWindow)
-        self.centralwidget.setAutoFillBackground(True)
-        newPallete = self.centralwidget.palette()
-        newPallete.setColor(self.centralwidget.backgroundRole(), QColor("#bbbbbbbb"))
-        self.centralwidget.setPalette(newPallete)
         self.centralwidget.setObjectName("centralwidget")
 
+        # Problem Widget Configurations
+        self.problemwidget = QWidget(MainWindow)
+        self.problemwidget.setAutoFillBackground(True)
+        newPallete = self.problemwidget.palette()
+        newPallete.setColor(self.problemwidget.backgroundRole(), QColor("#ffffffff"))
+        self.problemwidget.setPalette(newPallete)
+        self.problemwidget.setObjectName("problemwidget")
+
         # Bottom Widget Configurations
-        self.bottomGrid = QGridLayout()
+        self.bottomLayout = QVBoxLayout()
         self.bottomwidget = QWidget()
         self.bottomwidget.setAutoFillBackground(True)
-        newPallete = self.bottomwidget.palette()
-        newPallete.setColor(self.bottomwidget.backgroundRole(), QColor("#00000000"))
-        self.bottomwidget.setPalette(newPallete)
         self.bottomwidget.setObjectName("bottomwidget")
         self.bottomwidget.setMaximumHeight(150)
+
+        self.bottomInteractionLayout = QHBoxLayout()
+        self.bottomInteractionwidget = QWidget()
+        self.bottomInteractionwidget.setAutoFillBackground(True)
+        self.bottomInteractionwidget.setObjectName("bottomInteractionwidget")
 
         # Console
         self.textBrowser = QTextBrowser()
@@ -36,19 +42,23 @@ class Ui_MainWindow(object):
         self.pushButton.setObjectName("pushButton")
 
         # Lines
-        self.line = QFrame(self.bottomwidget)
+        self.line = QFrame(self.bottomInteractionwidget)
         # self.line.setGeometry(10, 270, 581, 20)
         self.line.setFrameShape(QFrame.HLine)
         self.line.setFrameShadow(QFrame.Sunken)
         self.line.setObjectName("line")
 
-        self.bottomGrid.addWidget(self.line, 0, 0, 1, 2)
-        self.bottomGrid.addWidget(self.textBrowser, 1, 0, 1, 1)
-        self.bottomGrid.addWidget(self.pushButton, 1, 1, 1, 1)
-        self.bottomwidget.setLayout(self.bottomGrid)
+        self.bottomInteractionLayout.addWidget(self.textBrowser)
+        self.bottomInteractionLayout.addWidget(self.pushButton)
+        self.bottomInteractionwidget.setLayout(self.bottomInteractionLayout)
 
-        self.centralGrid.addWidget(self.bottomwidget)
-        self.centralwidget.setLayout(self.centralGrid)
+        self.bottomLayout.addWidget(self.line)
+        self.bottomLayout.addWidget(self.bottomInteractionwidget)
+        self.bottomwidget.setLayout(self.bottomLayout)        
+
+        self.centralLayout.addWidget(self.problemwidget)
+        self.centralLayout.addWidget(self.bottomwidget)
+        self.centralwidget.setLayout(self.centralLayout)
 
         MainWindow.setCentralWidget(self.centralwidget)
 #
@@ -91,7 +101,7 @@ class Ui_MainWindow(object):
 
     def setTextsUi(self, MainWindow):
         MainWindow.setWindowTitle("Path Finding Algorithms")
-        self.pushButton.setText("PushButton")
+        self.pushButton.setText("Generate Path")
         self.menuAlgorithm.setTitle("Algorithm")
         self.menuFile.setTitle("File")
         self.actionDijkstra.setText("Dijkstra")
