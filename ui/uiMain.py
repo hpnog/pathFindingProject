@@ -1,5 +1,6 @@
-from PyQt5.QtWidgets import QMenuBar, QMenu, QAction, QStatusBar, QWidget, QTextBrowser, QGridLayout, QPushButton, QFrame, QVBoxLayout, QHBoxLayout
+from PyQt5.QtWidgets import QMenuBar, QMenu, QAction, QStatusBar, QWidget, QPlainTextEdit, QGridLayout, QPushButton, QFrame, QVBoxLayout, QHBoxLayout
 from PyQt5.QtGui import QColor
+from ui.drawingBoard import DrawingBoard
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -14,7 +15,7 @@ class Ui_MainWindow(object):
         self.centralwidget.setObjectName("centralwidget")
 
         # Problem Widget Configurations
-        self.problemwidget = QWidget(MainWindow)
+        self.problemwidget = DrawingBoard(MainWindow)
         self.problemwidget.setAutoFillBackground(True)
         newPallete = self.problemwidget.palette()
         newPallete.setColor(self.problemwidget.backgroundRole(), QColor("#ffffffff"))
@@ -34,7 +35,7 @@ class Ui_MainWindow(object):
         self.bottomInteractionwidget.setObjectName("bottomInteractionwidget")
 
         # Console
-        self.textBrowser = QTextBrowser()
+        self.textBrowser = QPlainTextEdit()
         self.textBrowser.setObjectName("textBrowser")
 
         # Buttons
@@ -61,7 +62,7 @@ class Ui_MainWindow(object):
         self.centralwidget.setLayout(self.centralLayout)
 
         MainWindow.setCentralWidget(self.centralwidget)
-#
+
         # Menus
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setGeometry(0, 0, 600, 25)
@@ -97,6 +98,10 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
 
         self.setTextsUi(MainWindow)
+
+        self.problemwidget.setOutput(self.textBrowser)
+        self.problemwidget.setStatusBar(self.statusbar)
+
 #        QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def setTextsUi(self, MainWindow):
@@ -109,4 +114,4 @@ class Ui_MainWindow(object):
         self.actionSave.setText("Save")
         self.actionLoad.setText("Load")
         self.actionExit.setText("Exit")
-        self.textBrowser.setText("<Begining of Output Console>")
+        self.textBrowser.appendPlainText("<Begining of Output Console>")
