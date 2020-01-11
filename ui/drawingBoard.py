@@ -8,19 +8,21 @@ class DrawingBoard(QWidget) :
     def __init__(self, obj):
         super().__init__(obj)
 
-        self.out = None
-        self.statusBar = None
+        self.out, self.statusBar = None, None
+        self.cellWidth, cellHeight = 0, 0
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
 
         newWidth = self.width()
         newHeight = self.height()
-
         newCellWidth = newWidth // (CELL_W + CELL_SPACING)
         newCellHeight = newHeight // (CELL_H + CELL_SPACING)
 
-        self.print("[DrawingBoard] New Width: " + str(newCellWidth) + " new height: " + str(newCellHeight))
+        if newCellWidth != self.cellWidth or newCellHeight != slf.cellHeight:
+            self.cellWidth = newWidth
+            self.cellHeight = newHeight
+            self.print("[DrawingBoard] New Width: " + str(newCellWidth) + " new height: " + str(newCellHeight))
 
     def setOutput(self, obj):
         self.out = obj
