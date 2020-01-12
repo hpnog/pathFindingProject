@@ -160,7 +160,7 @@ class DrawingBoard(QWidget) :
 
                 self.repaint()
                 self.comms.startSelected.emit()
-                self.print("[DrawingBoard] Selected Start position: X: " + str(cellNumX) + " Y:" + str(cellNumX))
+                self.print("[DrawingBoard] Selected Start position: X: " + str(cellNumX) + " Y:" + str(cellNumY))
             elif self.selectingEnd:
                 self.selectingEnd = False
 
@@ -182,7 +182,7 @@ class DrawingBoard(QWidget) :
 
                 self.repaint()
                 self.comms.endSelected.emit()
-                self.print("[DrawingBoard] Selected End position: X: " + str(cellNumX) + " Y:" + str(cellNumX))
+                self.print("[DrawingBoard] Selected End position: X: " + str(cellNumX) + " Y:" + str(cellNumY))
 
             elif self.selectingObstacles:
                 cellNumX = event.pos().x() // (CELL_SIZE + MIN_CELL_SPACING)
@@ -196,7 +196,7 @@ class DrawingBoard(QWidget) :
                 self.gridUpdates.append((cellNumX, cellNumY))
 
                 self.repaint()
-                self.print("[DrawingBoard] Selected Obstacle position: X: " + str(cellNumX) + " Y:" + str(cellNumX))
+                self.print("[DrawingBoard] Selected Obstacle position: X: " + str(cellNumX) + " Y:" + str(cellNumY))
 
     def addComms(self, comms):
         self.comms = comms
