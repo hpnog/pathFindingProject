@@ -171,12 +171,28 @@ class Ui_MainWindow(object):
         self.pushButton_selectEnd.setEnabled(not toggle)
         self.pushButton_drawObstacles.setEnabled(not toggle)
 
+    def selectEndPressed(self):
+        toggle =  self.problemwidget.toggleSelectEnd()
+        self.selectedEnd(toggle)
+
+    def selectedEnd(self, toggle = False):
+        self.pushButton_selectEnd.setDown(toggle)
+
+        self.pushButton_lockGrid.setEnabled(not toggle)
+        self.pushButton_unlockGrid.setEnabled(not toggle)
+        self.pushButton_selectStart.setEnabled(not toggle)
+        self.pushButton_drawObstacles.setEnabled(not toggle)
+
+
     def initActions(self):
         self.pushButton_lockGrid.clicked.connect(self.setGridAndLockResize)
         self.pushButton_unlockGrid.clicked.connect(self.clearGridAndUnlockResize)
 
         self.pushButton_selectStart.clicked.connect(self.selectStartPressed)
         self.comms.startSelected.connect(self.selectedStart)
+
+        self.pushButton_selectEnd.clicked.connect(self.selectEndPressed)
+        self.comms.endSelected.connect(self.selectedEnd)
         
         # self.pushButton_selectEnd.clicked.connect(self.clearGridAndUnlockResize)
         # self.pushButton_drawObstacles.clicked.connect(self.clearGridAndUnlockResize)
