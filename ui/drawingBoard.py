@@ -1,11 +1,14 @@
 from PyQt5.QtWidgets import QWidget
 from PyQt5.QtGui import QPainter, QPen, QColor
+from PyQt5 import QtCore
+from ui.comms import Comms
 
 CELL_SIZE = 20
 MIN_CELL_SPACING = 1
 
 CELL_COLLORS = [
-        QColor("#CCCCCCCC")
+        QColor("#CCCCCC"),
+        QColor("#FF0000")
     ]
 
 class DrawingBoard(QWidget) :
@@ -17,6 +20,9 @@ class DrawingBoard(QWidget) :
         self.gridUpdates = []
         self.grid = []
         self.toClear = False
+        self.selectingStart = False
+        self.setSelectStartCallback = None
+        self.comms = None
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
@@ -37,6 +43,10 @@ class DrawingBoard(QWidget) :
 
     def setStatusBar(self, obj):
         self.statusBar = obj
+
+    def toggleSelectStart(self) -> str:
+        self.selectingStart = not self.selectingStart
+        return self.selectingStart
 
     def print(self, string):
         if self.out is not None:
@@ -79,11 +89,14 @@ class DrawingBoard(QWidget) :
             currGrid = self.grid[:]
 
             pen_1 = QPen(CELL_COLLORS[0], CELL_SIZE)
+            pen_start = QPen(CELL_COLLORS[1], CELL_SIZE)
 
             while len(gridUpdates) > 0:
                 newUpdate = gridUpdates.pop()
                 if currGrid[newUpdate[0]][newUpdate[1]] == 0:
                     painter.setPen(pen_1)
+                elif currGrid[newUpdate[0]][newUpdate[1]] == 1:
+                    painter.setPen(pen_start)
 
                 xCoord = newUpdate[0] * (CELL_SIZE + MIN_CELL_SPACING) + MIN_CELL_SPACING + CELL_SIZE // 2
                 yCoord = newUpdate[1] * (CELL_SIZE + MIN_CELL_SPACING) + MIN_CELL_SPACING + CELL_SIZE // 2
@@ -92,3 +105,23 @@ class DrawingBoard(QWidget) :
         
         painter.end()
 
+    def mousePressEvent(self, event):
+        if len(self.grid) == 0:
+            return
+
+        if event.buttons() & QtCore.Qt.LeftButton:
+            if self.selectingStart:
+                self.selectingStart = False
+
+                cellNumX = event.pos().x() // (CELL_SIZE + MIN_CELL_SPACING)
+                cellNumY = event.pos().y() // (CELL_SIZE + MIN_CELL_SPACING)
+
+                self.grid[cellNumX][cellNumY] = 1
+                self.gridUpdates.append((cellNumX, cellNumY))
+
+                self.repaint()
+                self.comms.startSelected.emit()
+                self.print("[DrawingBoard] Selected Start position: X: " + str(cellNumX) + " Y:" + str(cellNumX))
+
+    def addComms(self, comms):
+        self.comms = comms

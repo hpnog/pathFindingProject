@@ -1,6 +1,7 @@
 from PyQt5.QtWidgets import QMenuBar, QMenu, QAction, QStatusBar, QWidget, QPlainTextEdit, QPushButton, QFrame, QVBoxLayout, QHBoxLayout
 from PyQt5.QtGui import QColor
 from ui.drawingBoard import DrawingBoard
+from ui.comms import Comms
 
 MIN_WINDOW_WIDTH = 700
 MIN_WINDOW_HEIGHT = 500
@@ -8,6 +9,9 @@ MAX_WINDOW_WIDTH = 4000
 MAX_WINDOW_HEIGHT = 2000
 
 class Ui_MainWindow(object):
+    def __init__(self): 
+        self.comms = None
+
     def setupUi(self, MainWindow):
         self.mainWindow = MainWindow
 
@@ -155,10 +159,25 @@ class Ui_MainWindow(object):
         self.pushButton_selectEnd.setEnabled(False)
         self.pushButton_drawObstacles.setEnabled(False)
 
+    def selectStartPressed(self):
+        toggle =  self.problemwidget.toggleSelectStart()
+        self.selectedStart(toggle)
+
+    def selectedStart(self, toggle = False):
+        self.pushButton_selectStart.setDown(toggle)
+
+        self.pushButton_lockGrid.setEnabled(not toggle)
+        self.pushButton_unlockGrid.setEnabled(not toggle)
+        self.pushButton_selectEnd.setEnabled(not toggle)
+        self.pushButton_drawObstacles.setEnabled(not toggle)
+
     def initActions(self):
         self.pushButton_lockGrid.clicked.connect(self.setGridAndLockResize)
         self.pushButton_unlockGrid.clicked.connect(self.clearGridAndUnlockResize)
-        # self.pushButton_selectStart.clicked.connect(self.clearGridAndUnlockResize)
+
+        self.pushButton_selectStart.clicked.connect(self.selectStartPressed)
+        self.comms.startSelected.connect(self.selectedStart)
+        
         # self.pushButton_selectEnd.clicked.connect(self.clearGridAndUnlockResize)
         # self.pushButton_drawObstacles.clicked.connect(self.clearGridAndUnlockResize)
 
@@ -177,3 +196,7 @@ class Ui_MainWindow(object):
         self.actionLoad.setText("Load")
         self.actionExit.setText("Exit")
         self.textBrowser.appendPlainText("<Begining of Output Console>")
+
+    def addComms(self, comms):
+        self.comms = comms
+        self.problemwidget.addComms(comms)
