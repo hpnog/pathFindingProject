@@ -24,6 +24,8 @@ class DrawingBoard(QWidget) :
         self.setSelectStartCallback = None
         self.comms = None
 
+        self.startPosition = None
+
     def resizeEvent(self, event):
         super().resizeEvent(event)
 
@@ -72,6 +74,7 @@ class DrawingBoard(QWidget) :
     def clearGrid(self):
         self.grid = []
         self.gridUpdates = []
+        self.startPosition = None
         self.toClear = True
         self.print("[DrawingBoard] Grid cleared")
         self.repaint()
@@ -118,6 +121,12 @@ class DrawingBoard(QWidget) :
 
                 self.grid[cellNumX][cellNumY] = 1
                 self.gridUpdates.append((cellNumX, cellNumY))
+
+                if self.startPosition is not None:
+                    self.grid[self.startPosition[0]][self.startPosition[1]] = 0
+                    self.gridUpdates.append((self.startPosition[0], self.startPosition[1]))
+
+                self.startPosition = (cellNumX, cellNumY)
 
                 self.repaint()
                 self.comms.startSelected.emit()
