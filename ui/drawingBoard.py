@@ -102,7 +102,7 @@ class DrawingBoard(QWidget) :
             painter.drawLine(0, 1000, 2000, 1000)
         elif len(self.grid) > 0 and len(self.gridUpdates) > 0:
             gridUpdates = self.gridUpdates[:]
-            currGrid = self.grid[:]
+            currGrid = self.grid
 
             pen_1 = QPen(CELL_COLLORS[0], CELL_SIZE)
             pen_start = QPen(CELL_COLLORS[1], CELL_SIZE)
@@ -145,6 +145,10 @@ class DrawingBoard(QWidget) :
                 cellNumX = event.pos().x() // (CELL_SIZE + MIN_CELL_SPACING)
                 cellNumY = event.pos().y() // (CELL_SIZE + MIN_CELL_SPACING)
 
+                if self.grid[cellNumX][cellNumY] != 0:
+                    self.print("[DrawingBoard] Cell not empty - Remove assignment firsrt")
+                    return
+
                 self.grid[cellNumX][cellNumY] = 1
                 self.gridUpdates.append((cellNumX, cellNumY))
 
@@ -163,6 +167,10 @@ class DrawingBoard(QWidget) :
                 cellNumX = event.pos().x() // (CELL_SIZE + MIN_CELL_SPACING)
                 cellNumY = event.pos().y() // (CELL_SIZE + MIN_CELL_SPACING)
 
+                if self.grid[cellNumX][cellNumY] != 0:
+                    self.print("[DrawingBoard] Cell not empty - Remove assignment firsrt")
+                    return
+
                 self.grid[cellNumX][cellNumY] = 2
                 self.gridUpdates.append((cellNumX, cellNumY))
 
@@ -179,6 +187,10 @@ class DrawingBoard(QWidget) :
             elif self.selectingObstacles:
                 cellNumX = event.pos().x() // (CELL_SIZE + MIN_CELL_SPACING)
                 cellNumY = event.pos().y() // (CELL_SIZE + MIN_CELL_SPACING)
+
+                if self.grid[cellNumX][cellNumY] != 0:
+                    # self.print("[DrawingBoard] Cell not empty - Remove assignment firsrt")
+                    return
 
                 self.grid[cellNumX][cellNumY] = 3
                 self.gridUpdates.append((cellNumX, cellNumY))
