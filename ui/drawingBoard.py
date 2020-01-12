@@ -2,10 +2,10 @@ from PyQt5.QtWidgets import QWidget
 from PyQt5.QtGui import QPainter, QPen, QColor
 
 CELL_SIZE = 20
-CELL_SPACING = 2
+MIN_CELL_SPACING = 1
 
 CELL_COLLORS = [
-        QColor("#eeeeeeee")
+        QColor("#CCCCCCCC")
     ]
 
 class DrawingBoard(QWidget) :
@@ -23,8 +23,8 @@ class DrawingBoard(QWidget) :
 
         newWidth = self.width()
         newHeight = self.height()
-        newCellWidth = newWidth // (CELL_SIZE + CELL_SPACING)
-        newCellHeight = newHeight // (CELL_SIZE + CELL_SPACING)
+        newCellWidth = newWidth // (CELL_SIZE + MIN_CELL_SPACING)
+        newCellHeight = newHeight // (CELL_SIZE + MIN_CELL_SPACING)
 
         if newCellWidth != self.cellWidth or newCellHeight != self.cellHeight:
             self.cellWidth = newCellWidth
@@ -85,8 +85,8 @@ class DrawingBoard(QWidget) :
                 if currGrid[newUpdate[0]][newUpdate[1]] == 0:
                     painter.setPen(pen_1)
 
-                xCoord = newUpdate[0] * (CELL_SIZE + CELL_SPACING) + CELL_SPACING + CELL_SIZE // 2
-                yCoord = newUpdate[1] * (CELL_SIZE + CELL_SPACING) + CELL_SPACING + CELL_SIZE // 2
+                xCoord = newUpdate[0] * (CELL_SIZE + MIN_CELL_SPACING) + MIN_CELL_SPACING + CELL_SIZE // 2
+                yCoord = newUpdate[1] * (CELL_SIZE + MIN_CELL_SPACING) + MIN_CELL_SPACING + CELL_SIZE // 2
 
                 painter.drawLine(xCoord, yCoord, xCoord, yCoord)
         

@@ -2,9 +2,9 @@ from PyQt5.QtWidgets import QMenuBar, QMenu, QAction, QStatusBar, QWidget, QPlai
 from PyQt5.QtGui import QColor
 from ui.drawingBoard import DrawingBoard
 
-MIN_WINDOW_WIDTH = 600
-MIN_WINDOW_HEIGHT = 400
-MAX_WINDOW_WIDTH = 2000
+MIN_WINDOW_WIDTH = 700
+MIN_WINDOW_HEIGHT = 500
+MAX_WINDOW_WIDTH = 4000
 MAX_WINDOW_HEIGHT = 2000
 
 class Ui_MainWindow(object):
@@ -34,7 +34,7 @@ class Ui_MainWindow(object):
         self.bottomwidget = QWidget()
         self.bottomwidget.setAutoFillBackground(True)
         self.bottomwidget.setObjectName("bottomwidget")
-        self.bottomwidget.setMaximumHeight(150)
+        self.bottomwidget.setMaximumHeight(200)
 
         self.bottomInteractionLayout = QHBoxLayout()
         self.bottomInteractionwidget = QWidget()
@@ -58,6 +58,18 @@ class Ui_MainWindow(object):
         self.pushButton_unlockGrid.setObjectName("pushButton_unlockGrid")
         self.pushButton_unlockGrid.setEnabled(False)
 
+        self.pushButton_selectStart = QPushButton()
+        self.pushButton_selectStart.setObjectName("pushButton_selectStart")
+        self.pushButton_selectStart.setEnabled(False)
+
+        self.pushButton_selectEnd = QPushButton()
+        self.pushButton_selectEnd.setObjectName("pushButton_selectEnd")
+        self.pushButton_selectEnd.setEnabled(False)
+
+        self.pushButton_drawObstacles = QPushButton()
+        self.pushButton_drawObstacles.setObjectName("pushButton_drawObstacles")
+        self.pushButton_drawObstacles.setEnabled(False)
+
         # Lines
         self.line = QFrame(self.bottomInteractionwidget)
         self.line.setFrameShape(QFrame.HLine)
@@ -66,6 +78,9 @@ class Ui_MainWindow(object):
 
         self.bottomButtonsLayout.addWidget(self.pushButton_lockGrid)
         self.bottomButtonsLayout.addWidget(self.pushButton_unlockGrid)
+        self.bottomButtonsLayout.addWidget(self.pushButton_selectStart)
+        self.bottomButtonsLayout.addWidget(self.pushButton_selectEnd)
+        self.bottomButtonsLayout.addWidget(self.pushButton_drawObstacles)
         self.bottomButtonswidget.setLayout(self.bottomButtonsLayout)
 
         self.bottomInteractionLayout.addWidget(self.textBrowser)
@@ -126,6 +141,9 @@ class Ui_MainWindow(object):
         self.mainWindow.setFixedSize(self.mainWindow.width(), self.mainWindow.height())
         self.pushButton_lockGrid.setEnabled(False)
         self.pushButton_unlockGrid.setEnabled(True)
+        self.pushButton_selectStart.setEnabled(True)
+        self.pushButton_selectEnd.setEnabled(True)
+        self.pushButton_drawObstacles.setEnabled(True)
 
     def clearGridAndUnlockResize(self):
         self.problemwidget.clearGrid()
@@ -133,15 +151,24 @@ class Ui_MainWindow(object):
         self.mainWindow.setMaximumSize(MAX_WINDOW_WIDTH, MAX_WINDOW_HEIGHT)
         self.pushButton_lockGrid.setEnabled(True)
         self.pushButton_unlockGrid.setEnabled(False)
+        self.pushButton_selectStart.setEnabled(False)
+        self.pushButton_selectEnd.setEnabled(False)
+        self.pushButton_drawObstacles.setEnabled(False)
 
     def initActions(self):
         self.pushButton_lockGrid.clicked.connect(self.setGridAndLockResize)
         self.pushButton_unlockGrid.clicked.connect(self.clearGridAndUnlockResize)
+        # self.pushButton_selectStart.clicked.connect(self.clearGridAndUnlockResize)
+        # self.pushButton_selectEnd.clicked.connect(self.clearGridAndUnlockResize)
+        # self.pushButton_drawObstacles.clicked.connect(self.clearGridAndUnlockResize)
 
     def setTextsUi(self, MainWindow):
         self.mainWindow.setWindowTitle("Path Finding Algorithms")
         self.pushButton_lockGrid.setText("Generate Grid")
         self.pushButton_unlockGrid.setText("Clear Grid")
+        self.pushButton_selectStart.setText("Select Start")
+        self.pushButton_selectEnd.setText("Select End")
+        self.pushButton_drawObstacles.setText("Draw Obstacles")
         self.menuAlgorithm.setTitle("Algorithm")
         self.menuFile.setTitle("File")
         self.actionDijkstra.setText("Dijkstra")
