@@ -12,6 +12,7 @@ class DrawingBoard(QWidget) :
         self.cellWidth, cellHeight = 0, 0
         self.gridUpdates = []
         self.grid = []
+        self.toClear = False
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
@@ -40,7 +41,7 @@ class DrawingBoard(QWidget) :
         if self.statusBar is not None:
             self.statusBar.showMessage(string, 1500)
 
-    def triggerFullGrid(self):
+    def setFullGrid(self):
         self.grid = [[0 for i in range(self.cellWidth)] for j in range(self.cellHeight)]
             
         self.gridUpdates = []
@@ -48,25 +49,44 @@ class DrawingBoard(QWidget) :
             for i in range(self.cellWidth):
                 self.gridUpdates.append((i, j)) 
         self.repaint()
-        self.print("[DrawingBoard] Full Grid painting triggered...")
-        
+        self.print("[DrawingBoard] Full Grid painting set")
+    
+    def clearGrid(self):
+        self.grid = []
+        self.gridUpdates = []
+        self.toClear = True
+        self.print("[DrawingBoard] Grid cleared")
+        self.repaint()
+
     def paintEvent(self, event):
-
         painter = QPainter()
-        gridUpdates = self.gridUpdates[:]
+        painter.begin(self)
 
-        defaultPen = QPen(QColor("#eeeeeeee"), CELL_SIZE)
-        while len(gridUpdates) > 0:
-
-            painter.begin(self)
-            painter.setPen(defaultPen)
-            newUpdate = gridUpdates.pop()
-
+        if self.toClear:
+            self.toClear = False
+            defaultPen = QPen(QColor("#ffffffff"), 2000, 2000)
             painter.drawLine(
-                                newUpdate[0] * (CELL_SIZE + CELL_SPACING) + CELL_SPACING, 
-                                newUpdate[1] * (CELL_SIZE + CELL_SPACING) + CELL_SPACING + CELL_SIZE // 2,
-                                newUpdate[0] * (CELL_SIZE + CELL_SPACING) + CELL_SPACING,
-                                newUpdate[1] * (CELL_SIZE + CELL_SPACING) + CELL_SPACING + CELL_SIZE // 2,
+                                    0, 
+                                    1000,
+                                    2000,
+                                    1000
                             )
-            painter.end()
+        else:
+            gridUpdates = self.gridUpdates[:]
+
+            defaultPen = QPen(QColor("#eeeeeeee"), CELL_SIZE)
+
+            while len(gridUpdates) > 0:
+
+                painter.setPen(defaultPen)
+                newUpdate = gridUpdates.pop()
+
+                painter.drawLine(
+                                    newUpdate[0] * (CELL_SIZE + CELL_SPACING) + CELL_SPACING, 
+                                    newUpdate[1] * (CELL_SIZE + CELL_SPACING) + CELL_SPACING + CELL_SIZE // 2,
+                                    newUpdate[0] * (CELL_SIZE + CELL_SPACING) + CELL_SPACING,
+                                    newUpdate[1] * (CELL_SIZE + CELL_SPACING) + CELL_SPACING + CELL_SIZE // 2,
+                                )
+        
+        painter.end()
 

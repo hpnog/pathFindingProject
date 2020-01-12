@@ -11,7 +11,7 @@ if __name__ == "__main__":
     ui.setupUi(MainWindow)
     MainWindow.show()
     
-    ui.setGenerateGridAction()
+    ui.initActions()
 
     # Runs the App and returns its exit status
     sys.exit(app.exec_())

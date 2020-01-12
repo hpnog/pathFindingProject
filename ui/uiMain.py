@@ -2,20 +2,27 @@ from PyQt5.QtWidgets import QMenuBar, QMenu, QAction, QStatusBar, QWidget, QPlai
 from PyQt5.QtGui import QColor
 from ui.drawingBoard import DrawingBoard
 
+MIN_WINDOW_WIDTH = 600
+MIN_WINDOW_HEIGHT = 400
+MAX_WINDOW_WIDTH = 2000
+MAX_WINDOW_HEIGHT = 2000
+
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
+        self.mainWindow = MainWindow
+
         # Window Configurations
-        MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(800, 600)
-        MainWindow.setMinimumSize(600, 400)
+        self.mainWindow.setObjectName("MainWindow")
+        self.mainWindow.resize(800, 600)
+        self.mainWindow.setMinimumSize(MIN_WINDOW_WIDTH, MIN_WINDOW_HEIGHT)
 
         # Central Widget Configurations
         self.centralLayout = QVBoxLayout()
-        self.centralwidget = QWidget(MainWindow)
+        self.centralwidget = QWidget(self.mainWindow)
         self.centralwidget.setObjectName("centralwidget")
 
         # Problem Widget Configurations
-        self.problemwidget = DrawingBoard(MainWindow)
+        self.problemwidget = DrawingBoard(self.mainWindow)
         self.problemwidget.setAutoFillBackground(True)
         newPallete = self.problemwidget.palette()
         newPallete.setColor(self.problemwidget.backgroundRole(), QColor("#ffffffff"))
@@ -34,13 +41,22 @@ class Ui_MainWindow(object):
         self.bottomInteractionwidget.setAutoFillBackground(True)
         self.bottomInteractionwidget.setObjectName("bottomInteractionwidget")
 
+        self.bottomButtonsLayout = QVBoxLayout()
+        self.bottomButtonswidget = QWidget()
+        self.bottomButtonswidget.setAutoFillBackground(True)
+        self.bottomButtonswidget.setObjectName("bottomButtonswidget")
+
         # Console
         self.textBrowser = QPlainTextEdit()
         self.textBrowser.setObjectName("textBrowser")
 
         # Buttons
-        self.pushButton_grid = QPushButton()
-        self.pushButton_grid.setObjectName("pushButton_grid")
+        self.pushButton_lockGrid = QPushButton()
+        self.pushButton_lockGrid.setObjectName("pushButton_lockGrid")
+
+        self.pushButton_unlockGrid = QPushButton()
+        self.pushButton_unlockGrid.setObjectName("pushButton_unlockGrid")
+        self.pushButton_unlockGrid.setEnabled(False)
 
         # Lines
         self.line = QFrame(self.bottomInteractionwidget)
@@ -48,8 +64,12 @@ class Ui_MainWindow(object):
         self.line.setFrameShadow(QFrame.Sunken)
         self.line.setObjectName("line")
 
+        self.bottomButtonsLayout.addWidget(self.pushButton_lockGrid)
+        self.bottomButtonsLayout.addWidget(self.pushButton_unlockGrid)
+        self.bottomButtonswidget.setLayout(self.bottomButtonsLayout)
+
         self.bottomInteractionLayout.addWidget(self.textBrowser)
-        self.bottomInteractionLayout.addWidget(self.pushButton_grid)
+        self.bottomInteractionLayout.addWidget(self.bottomButtonswidget)
         self.bottomInteractionwidget.setLayout(self.bottomInteractionLayout)
 
         self.bottomLayout.addWidget(self.line)
@@ -60,10 +80,10 @@ class Ui_MainWindow(object):
         self.centralLayout.addWidget(self.bottomwidget)
         self.centralwidget.setLayout(self.centralLayout)
 
-        MainWindow.setCentralWidget(self.centralwidget)
+        self.mainWindow.setCentralWidget(self.centralwidget)
 
         # Menus
-        self.menubar = QMenuBar(MainWindow)
+        self.menubar = QMenuBar(self.mainWindow)
         self.menubar.setGeometry(0, 0, 600, 25)
         self.menubar.setObjectName("menubar")
 
@@ -71,17 +91,17 @@ class Ui_MainWindow(object):
         self.menuAlgorithm.setObjectName("menuAlgorithm")
         self.menuFile = QMenu(self.menubar)
         self.menuFile.setObjectName("menuFile")
-        MainWindow.setMenuBar(self.menubar)
+        self.mainWindow.setMenuBar(self.menubar)
 
-        self.actionDijkstra = QAction(MainWindow)
+        self.actionDijkstra = QAction(self.mainWindow)
         self.actionDijkstra.setObjectName("actionDijkstra")
-        self.actionExport = QAction(MainWindow)
+        self.actionExport = QAction(self.mainWindow)
         self.actionExport.setObjectName("actionExport")
-        self.actionSave = QAction(MainWindow)
+        self.actionSave = QAction(self.mainWindow)
         self.actionSave.setObjectName("actionSave")
-        self.actionLoad = QAction(MainWindow)
+        self.actionLoad = QAction(self.mainWindow)
         self.actionLoad.setObjectName("actionLoad")
-        self.actionExit = QAction(MainWindow)
+        self.actionExit = QAction(self.mainWindow)
         self.actionExit.setObjectName("actionExit")
         self.menuAlgorithm.addAction(self.actionDijkstra)
         self.menuFile.addAction(self.actionSave)
@@ -92,21 +112,36 @@ class Ui_MainWindow(object):
         self.menubar.addAction(self.menuAlgorithm.menuAction())
 
         # Status Bar
-        self.statusbar = QStatusBar(MainWindow)
+        self.statusbar = QStatusBar(self.mainWindow)
         self.statusbar.setObjectName("statusbar")
-        MainWindow.setStatusBar(self.statusbar)
+        self.mainWindow.setStatusBar(self.statusbar)
 
-        self.setTextsUi(MainWindow)
+        self.setTextsUi(self.mainWindow)
 
         self.problemwidget.setOutput(self.textBrowser)
         self.problemwidget.setStatusBar(self.statusbar)
 
-    def setGenerateGridAction(self):
-        self.pushButton_grid.clicked.connect(self.problemwidget.triggerFullGrid)
+    def setGridAndLockResize(self):
+        self.problemwidget.setFullGrid()
+        self.mainWindow.setFixedSize(self.mainWindow.width(), self.mainWindow.height())
+        self.pushButton_lockGrid.setEnabled(False)
+        self.pushButton_unlockGrid.setEnabled(True)
+
+    def clearGridAndUnlockResize(self):
+        self.problemwidget.clearGrid()
+        self.mainWindow.setMinimumSize(MIN_WINDOW_WIDTH, MIN_WINDOW_HEIGHT)
+        self.mainWindow.setMaximumSize(MAX_WINDOW_WIDTH, MAX_WINDOW_HEIGHT)
+        self.pushButton_lockGrid.setEnabled(True)
+        self.pushButton_unlockGrid.setEnabled(False)
+
+    def initActions(self):
+        self.pushButton_lockGrid.clicked.connect(self.setGridAndLockResize)
+        self.pushButton_unlockGrid.clicked.connect(self.clearGridAndUnlockResize)
 
     def setTextsUi(self, MainWindow):
-        MainWindow.setWindowTitle("Path Finding Algorithms")
-        self.pushButton_grid.setText("Generate Grid")
+        self.mainWindow.setWindowTitle("Path Finding Algorithms")
+        self.pushButton_lockGrid.setText("Generate Grid")
+        self.pushButton_unlockGrid.setText("Clear Grid")
         self.menuAlgorithm.setTitle("Algorithm")
         self.menuFile.setTitle("File")
         self.actionDijkstra.setText("Dijkstra")
