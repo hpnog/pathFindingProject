@@ -4,6 +4,10 @@ from PyQt5.QtGui import QPainter, QPen, QColor
 CELL_SIZE = 20
 CELL_SPACING = 2
 
+CELL_COLLORS = [
+        QColor("#eeeeeeee")
+    ]
+
 class DrawingBoard(QWidget) :
     def __init__(self, obj):
         super().__init__(obj)
@@ -41,15 +45,19 @@ class DrawingBoard(QWidget) :
         if self.statusBar is not None:
             self.statusBar.showMessage(string, 1500)
 
+        print(string)
+
     def setFullGrid(self):
-        self.grid = [[0 for i in range(self.cellWidth)] for j in range(self.cellHeight)]
-            
+        self.grid = []
         self.gridUpdates = []
-        for j in range(self.cellHeight):
-            for i in range(self.cellWidth):
-                self.gridUpdates.append((i, j)) 
+        for j in range(self.cellWidth):
+            currRow = []
+            for i in range(self.cellHeight):
+                self.gridUpdates.append((j, i))
+                currRow.append(0)
+            self.grid.append(currRow)
         self.repaint()
-        self.print("[DrawingBoard] Full Grid painting set")
+        self.print("[DrawingBoard] Full Grid painting set Size: " + str(len(self.grid)) + " vs " + str(len(self.grid[0])))
     
     def clearGrid(self):
         self.grid = []
@@ -65,28 +73,22 @@ class DrawingBoard(QWidget) :
         if self.toClear:
             self.toClear = False
             defaultPen = QPen(QColor("#ffffffff"), 2000, 2000)
-            painter.drawLine(
-                                    0, 
-                                    1000,
-                                    2000,
-                                    1000
-                            )
-        else:
+            painter.drawLine(0, 1000, 2000, 1000)
+        elif len(self.grid) > 0 and len(self.gridUpdates) > 0:
             gridUpdates = self.gridUpdates[:]
+            currGrid = self.grid[:]
 
-            defaultPen = QPen(QColor("#eeeeeeee"), CELL_SIZE)
+            pen_1 = QPen(CELL_COLLORS[0], CELL_SIZE)
 
             while len(gridUpdates) > 0:
-
-                painter.setPen(defaultPen)
                 newUpdate = gridUpdates.pop()
+                if currGrid[newUpdate[0]][newUpdate[1]] == 0:
+                    painter.setPen(pen_1)
 
-                painter.drawLine(
-                                    newUpdate[0] * (CELL_SIZE + CELL_SPACING) + CELL_SPACING, 
-                                    newUpdate[1] * (CELL_SIZE + CELL_SPACING) + CELL_SPACING + CELL_SIZE // 2,
-                                    newUpdate[0] * (CELL_SIZE + CELL_SPACING) + CELL_SPACING,
-                                    newUpdate[1] * (CELL_SIZE + CELL_SPACING) + CELL_SPACING + CELL_SIZE // 2,
-                                )
+                xCoord = newUpdate[0] * (CELL_SIZE + CELL_SPACING) + CELL_SPACING + CELL_SIZE // 2
+                yCoord = newUpdate[1] * (CELL_SIZE + CELL_SPACING) + CELL_SPACING + CELL_SIZE // 2
+
+                painter.drawLine(xCoord, yCoord, xCoord, yCoord)
         
         painter.end()
 
