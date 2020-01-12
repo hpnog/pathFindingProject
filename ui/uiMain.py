@@ -166,7 +166,6 @@ class Ui_MainWindow(object):
     def selectedStart(self, toggle = False):
         self.pushButton_selectStart.setDown(toggle)
 
-        self.pushButton_lockGrid.setEnabled(not toggle)
         self.pushButton_unlockGrid.setEnabled(not toggle)
         self.pushButton_selectEnd.setEnabled(not toggle)
         self.pushButton_drawObstacles.setEnabled(not toggle)
@@ -178,10 +177,17 @@ class Ui_MainWindow(object):
     def selectedEnd(self, toggle = False):
         self.pushButton_selectEnd.setDown(toggle)
 
-        self.pushButton_lockGrid.setEnabled(not toggle)
         self.pushButton_unlockGrid.setEnabled(not toggle)
         self.pushButton_selectStart.setEnabled(not toggle)
         self.pushButton_drawObstacles.setEnabled(not toggle)
+
+    def selectObstaclesPressed(self):
+        toggle =  self.problemwidget.toggleSelectObstacles()
+        self.pushButton_drawObstacles.setDown(toggle)
+
+        self.pushButton_unlockGrid.setEnabled(not toggle)
+        self.pushButton_selectStart.setEnabled(not toggle)
+        self.pushButton_selectEnd.setEnabled(not toggle)
 
 
     def initActions(self):
@@ -193,9 +199,8 @@ class Ui_MainWindow(object):
 
         self.pushButton_selectEnd.clicked.connect(self.selectEndPressed)
         self.comms.endSelected.connect(self.selectedEnd)
-        
-        # self.pushButton_selectEnd.clicked.connect(self.clearGridAndUnlockResize)
-        # self.pushButton_drawObstacles.clicked.connect(self.clearGridAndUnlockResize)
+
+        self.pushButton_drawObstacles.clicked.connect(self.selectObstaclesPressed)
 
     def setTextsUi(self, MainWindow):
         self.mainWindow.setWindowTitle("Path Finding Algorithms")

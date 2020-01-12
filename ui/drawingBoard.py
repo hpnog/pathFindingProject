@@ -3,13 +3,14 @@ from PyQt5.QtGui import QPainter, QPen, QColor
 from PyQt5 import QtCore
 from ui.comms import Comms
 
-CELL_SIZE = 20
+CELL_SIZE = 10
 MIN_CELL_SPACING = 1
 
 CELL_COLLORS = [
-        QColor("#CCCCCC"),
-        QColor("#FF0000"),
-        QColor("#AA0000")
+        QColor("#CCCCCC"),  # Empty
+        QColor("#FF0000"),  # Starting Point
+        QColor("#AA0000"),  # End Point
+        QColor("#FFFF00")   # Obstacles
     ]
 
 class DrawingBoard(QWidget) :
@@ -23,6 +24,7 @@ class DrawingBoard(QWidget) :
         self.toClear = False
         self.selectingStart = False
         self.selectingEnd = False
+        self.selectingObstacles = False
         self.comms = None
 
         self.startPosition = None
@@ -56,6 +58,9 @@ class DrawingBoard(QWidget) :
         self.selectingEnd = not self.selectingEnd
         return self.selectingEnd
 
+    def toggleSelectObstacles(self):
+        self.selectingObstacles = not self.selectingObstacles
+        return self.selectingObstacles
 
     def print(self, string):
         if self.out is not None:
@@ -102,6 +107,7 @@ class DrawingBoard(QWidget) :
             pen_1 = QPen(CELL_COLLORS[0], CELL_SIZE)
             pen_start = QPen(CELL_COLLORS[1], CELL_SIZE)
             pen_end = QPen(CELL_COLLORS[2], CELL_SIZE)
+            pen_obstacles = QPen(CELL_COLLORS[3], CELL_SIZE)
 
             while len(gridUpdates) > 0:
                 newUpdate = gridUpdates.pop()
@@ -111,6 +117,8 @@ class DrawingBoard(QWidget) :
                     painter.setPen(pen_start)
                 elif currGrid[newUpdate[0]][newUpdate[1]] == 2:
                     painter.setPen(pen_end)
+                elif currGrid[newUpdate[0]][newUpdate[1]] == 3:
+                    painter.setPen(pen_obstacles)
 
                 xCoord = newUpdate[0] * (CELL_SIZE + MIN_CELL_SPACING) + MIN_CELL_SPACING + CELL_SIZE // 2
                 yCoord = newUpdate[1] * (CELL_SIZE + MIN_CELL_SPACING) + MIN_CELL_SPACING + CELL_SIZE // 2
@@ -120,10 +128,17 @@ class DrawingBoard(QWidget) :
         painter.end()
 
     def mousePressEvent(self, event):
+        self.handleMouseEvent(event)
+
+    def mouseMoveEvent(self, event):
+        self.handleMouseEvent(event)
+
+
+    def handleMouseEvent(self, event):
         if len(self.grid) == 0:
             return
 
-        if event.buttons() & QtCore.Qt.LeftButton:
+        if event.buttons() and QtCore.Qt.LeftButton:
             if self.selectingStart:
                 self.selectingStart = False
 
@@ -160,6 +175,16 @@ class DrawingBoard(QWidget) :
                 self.repaint()
                 self.comms.endSelected.emit()
                 self.print("[DrawingBoard] Selected End position: X: " + str(cellNumX) + " Y:" + str(cellNumX))
+
+            elif self.selectingObstacles:
+                cellNumX = event.pos().x() // (CELL_SIZE + MIN_CELL_SPACING)
+                cellNumY = event.pos().y() // (CELL_SIZE + MIN_CELL_SPACING)
+
+                self.grid[cellNumX][cellNumY] = 3
+                self.gridUpdates.append((cellNumX, cellNumY))
+
+                self.repaint()
+                self.print("[DrawingBoard] Selected Obstacle position: X: " + str(cellNumX) + " Y:" + str(cellNumX))
 
     def addComms(self, comms):
         self.comms = comms
