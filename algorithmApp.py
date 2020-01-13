@@ -8,18 +8,16 @@ from algorithmHandler import AlgorithmHandler
 if __name__ == "__main__":
     app = QApplication(sys.argv)
 
-    MainWindow = QMainWindow()
-    ui = Ui_MainWindow()
-    ui.setupUi(MainWindow)
-
     comms = Comms()
     algorithmHandler = AlgorithmHandler()
     algorithmHandler.initComms(comms)
 
-    MainWindow.show()
+    MainWindow = QMainWindow()
+    ui = Ui_MainWindow(MainWindow)
 
     ui.initComms(comms)
     ui.initActions()
 
+    MainWindow.show()
     # Runs the App and returns its exit status
     sys.exit(app.exec_())

@@ -10,9 +10,11 @@ MAX_WINDOW_HEIGHT = 2000
 
 
 class Ui_MainWindow(object):
-    def __init__(self):
+    def __init__(self, mainwindow):
         self.comms = None
-        self.mainWindow = None
+        self.mainWindow = mainwindow
+        self.grid = None
+        self.gridUpdates = None
         self.centralLayout = None
         self.centralwidget = None
         self.problemwidget = None
@@ -38,13 +40,12 @@ class Ui_MainWindow(object):
         self.actionLoad = None
         self.actionExit = None
         self.menuFile = None
-
         # Status Bar
         self.statusbar = QStatusBar(self.mainWindow)
 
-    def setupUi(self, main_window):
-        self.mainWindow = main_window
+        self.setupUi()
 
+    def setupUi(self):
         # Window Configurations
         self.mainWindow.setObjectName("MainWindow")
         self.mainWindow.resize(800, 600)

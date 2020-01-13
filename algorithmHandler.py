@@ -1,12 +1,13 @@
 from ui.comms import Comms
-from algorithms import dijkstra
-
+from algorithms.dijkstra import Dijkstra
+from multiprocessing import Array
 
 class AlgorithmHandler(object):
     def __init__(self):
         self.comms = None
         self.algorithms = ["Dijkstra"]
         self.selectedAlgorithm = "Dijkstra"
+        self.processes = []
 
     def initComms(self, comms: Comms):
         self.comms = comms
@@ -19,3 +20,7 @@ class AlgorithmHandler(object):
 
     def runAlgorithm(self):
         self.comms.print.emit("[AlgorithmHandler] Throwing Thread for " + self.selectedAlgorithm + " algorithm")
+        dijkstraProcess = Dijkstra()
+        self.processes.append(dijkstraProcess)
+
+        dijkstraProcess.start()
