@@ -1,19 +1,49 @@
-from PyQt5.QtWidgets import QMenuBar, QMenu, QAction, QStatusBar, QWidget, QPlainTextEdit, QPushButton, QFrame, QVBoxLayout, QHBoxLayout
+from PyQt5.QtWidgets import QMenuBar, QMenu, QAction, QStatusBar, QWidget, QPlainTextEdit, QPushButton, QFrame, \
+    QVBoxLayout, QHBoxLayout
 from PyQt5.QtGui import QColor
 from ui.drawingBoard import DrawingBoard
-from ui.comms import Comms
 
 MIN_WINDOW_WIDTH = 700
 MIN_WINDOW_HEIGHT = 500
 MAX_WINDOW_WIDTH = 4000
 MAX_WINDOW_HEIGHT = 2000
 
-class Ui_MainWindow(object):
-    def __init__(self): 
-        self.comms = None
 
-    def setupUi(self, MainWindow):
-        self.mainWindow = MainWindow
+class Ui_MainWindow(object):
+    def __init__(self):
+        self.comms = None
+        self.mainWindow = None
+        self.centralLayout = None
+        self.centralwidget = None
+        self.problemwidget = None
+        self.bottomLayout = None
+        self.bottomwidget = None
+        self.bottomInteractionLayout = None
+        self.bottomInteractionwidget = None
+        self.bottomButtonsLayout = None
+        self.bottomButtonswidget = None
+        self.textBrowser = None
+        self.pushButton_lockGrid = None
+        self.pushButton_unlockGrid = None
+        self.pushButton_selectStart = None
+        self.pushButton_selectEnd = None
+        self.pushButton_drawObstacles = None
+        self.pushButton_runAlgorithm = None
+        self.line = None
+        self.menubar = None
+        self.menuAlgorithm = None
+        self.actionDijkstra = None
+        self.actionExport = None
+        self.actionSave = None
+        self.actionLoad = None
+        self.actionExit = None
+        self.menuFile = None
+
+        # Status Bar
+        self.statusbar = QStatusBar(self.mainWindow)
+
+    def setupUi(self, main_window):
+        self.mainWindow = main_window
 
         # Window Configurations
         self.mainWindow.setObjectName("MainWindow")
@@ -38,7 +68,7 @@ class Ui_MainWindow(object):
         self.bottomwidget = QWidget()
         self.bottomwidget.setAutoFillBackground(True)
         self.bottomwidget.setObjectName("bottomwidget")
-        self.bottomwidget.setMaximumHeight(200)
+        self.bottomwidget.setMaximumHeight(250)
 
         self.bottomInteractionLayout = QHBoxLayout()
         self.bottomInteractionwidget = QWidget()
@@ -74,6 +104,10 @@ class Ui_MainWindow(object):
         self.pushButton_drawObstacles.setObjectName("pushButton_drawObstacles")
         self.pushButton_drawObstacles.setEnabled(False)
 
+        self.pushButton_runAlgorithm = QPushButton()
+        self.pushButton_runAlgorithm.setObjectName("pushButton_runAlgorithm")
+        self.pushButton_runAlgorithm.setEnabled(False)
+
         # Lines
         self.line = QFrame(self.bottomInteractionwidget)
         self.line.setFrameShape(QFrame.HLine)
@@ -85,6 +119,7 @@ class Ui_MainWindow(object):
         self.bottomButtonsLayout.addWidget(self.pushButton_selectStart)
         self.bottomButtonsLayout.addWidget(self.pushButton_selectEnd)
         self.bottomButtonsLayout.addWidget(self.pushButton_drawObstacles)
+        self.bottomButtonsLayout.addWidget(self.pushButton_runAlgorithm)
         self.bottomButtonswidget.setLayout(self.bottomButtonsLayout)
 
         self.bottomInteractionLayout.addWidget(self.textBrowser)
@@ -93,7 +128,7 @@ class Ui_MainWindow(object):
 
         self.bottomLayout.addWidget(self.line)
         self.bottomLayout.addWidget(self.bottomInteractionwidget)
-        self.bottomwidget.setLayout(self.bottomLayout)        
+        self.bottomwidget.setLayout(self.bottomLayout)
 
         self.centralLayout.addWidget(self.problemwidget)
         self.centralLayout.addWidget(self.bottomwidget)
@@ -135,10 +170,7 @@ class Ui_MainWindow(object):
         self.statusbar.setObjectName("statusbar")
         self.mainWindow.setStatusBar(self.statusbar)
 
-        self.setTextsUi(self.mainWindow)
-
-        self.problemwidget.setOutput(self.textBrowser)
-        self.problemwidget.setStatusBar(self.statusbar)
+        self.setTextsUi()
 
     def setGridAndLockResize(self):
         self.problemwidget.setFullGrid()
@@ -148,6 +180,7 @@ class Ui_MainWindow(object):
         self.pushButton_selectStart.setEnabled(True)
         self.pushButton_selectEnd.setEnabled(True)
         self.pushButton_drawObstacles.setEnabled(True)
+        self.pushButton_runAlgorithm.setEnabled(True)
 
     def clearGridAndUnlockResize(self):
         self.problemwidget.clearGrid()
@@ -158,37 +191,54 @@ class Ui_MainWindow(object):
         self.pushButton_selectStart.setEnabled(False)
         self.pushButton_selectEnd.setEnabled(False)
         self.pushButton_drawObstacles.setEnabled(False)
+        self.pushButton_runAlgorithm.setEnabled(False)
 
     def selectStartPressed(self):
-        toggle =  self.problemwidget.toggleSelectStart()
+        toggle = self.problemwidget.toggleSelectStart()
         self.selectedStart(toggle)
 
-    def selectedStart(self, toggle = False):
+    def selectedStart(self, toggle=False):
         self.pushButton_selectStart.setDown(toggle)
 
         self.pushButton_unlockGrid.setEnabled(not toggle)
         self.pushButton_selectEnd.setEnabled(not toggle)
         self.pushButton_drawObstacles.setEnabled(not toggle)
+        self.pushButton_runAlgorithm.setEnabled(not toggle)
 
     def selectEndPressed(self):
-        toggle =  self.problemwidget.toggleSelectEnd()
+        toggle = self.problemwidget.toggleSelectEnd()
         self.selectedEnd(toggle)
 
-    def selectedEnd(self, toggle = False):
+    def selectedEnd(self, toggle=False):
         self.pushButton_selectEnd.setDown(toggle)
 
         self.pushButton_unlockGrid.setEnabled(not toggle)
         self.pushButton_selectStart.setEnabled(not toggle)
         self.pushButton_drawObstacles.setEnabled(not toggle)
+        self.pushButton_runAlgorithm.setEnabled(not toggle)
 
     def selectObstaclesPressed(self):
-        toggle =  self.problemwidget.toggleSelectObstacles()
+        toggle = self.problemwidget.toggleSelectObstacles()
         self.pushButton_drawObstacles.setDown(toggle)
 
         self.pushButton_unlockGrid.setEnabled(not toggle)
         self.pushButton_selectStart.setEnabled(not toggle)
         self.pushButton_selectEnd.setEnabled(not toggle)
+        self.pushButton_runAlgorithm.setEnabled(not toggle)
 
+    def selectedRunAlgorithm(self):
+        # Checks if one of the other buttons is enabled
+        toggle = self.pushButton_unlockGrid.isEnabled()
+
+        self.pushButton_runAlgorithm.setDown(toggle)
+
+        self.pushButton_unlockGrid.setEnabled(not toggle)
+        self.pushButton_selectStart.setEnabled(not toggle)
+        self.pushButton_selectEnd.setEnabled(not toggle)
+        self.pushButton_drawObstacles.setEnabled(not toggle)
+
+        if toggle:
+            self.comms.runAlgorithm.emit()
 
     def initActions(self):
         self.pushButton_lockGrid.clicked.connect(self.setGridAndLockResize)
@@ -202,13 +252,16 @@ class Ui_MainWindow(object):
 
         self.pushButton_drawObstacles.clicked.connect(self.selectObstaclesPressed)
 
-    def setTextsUi(self, MainWindow):
+        self.pushButton_runAlgorithm.clicked.connect(self.selectedRunAlgorithm)
+
+    def setTextsUi(self):
         self.mainWindow.setWindowTitle("Path Finding Algorithms")
         self.pushButton_lockGrid.setText("Generate Grid")
         self.pushButton_unlockGrid.setText("Clear Grid")
         self.pushButton_selectStart.setText("Select Start")
         self.pushButton_selectEnd.setText("Select End")
         self.pushButton_drawObstacles.setText("Draw Obstacles")
+        self.pushButton_runAlgorithm.setText("Run Algorithm")
         self.menuAlgorithm.setTitle("Algorithm")
         self.menuFile.setTitle("File")
         self.actionDijkstra.setText("Dijkstra")
@@ -218,6 +271,14 @@ class Ui_MainWindow(object):
         self.actionExit.setText("Exit")
         self.textBrowser.appendPlainText("<Begining of Output Console>")
 
-    def addComms(self, comms):
+    def printToConsole(self, string):
+        if self.textBrowser:
+            self.textBrowser.appendPlainText(string)
+        if self.statusbar:
+            self.statusbar.showMessage(string, 1500)
+        print(string)
+
+    def initComms(self, comms):
         self.comms = comms
-        self.problemwidget.addComms(comms)
+        self.problemwidget.initComms(comms)
+        self.comms.print.connect(self.printToConsole)
