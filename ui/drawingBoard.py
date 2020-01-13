@@ -2,6 +2,7 @@ from PyQt5.QtWidgets import QWidget
 from PyQt5.QtGui import QPainter, QPen, QColor
 from PyQt5 import QtCore
 from multiprocessing import Array
+from algorithmHandler import AlgorithmHandler
 
 CELL_SIZE = 20
 MIN_CELL_SPACING = 1
@@ -19,9 +20,7 @@ class DrawingBoard(QWidget):
         super().__init__(obj)
 
         self.cellWidth, self.cellHeight = 0, 0
-        self.gridUpdates = []
         self.grid = None
-        self.toClear = False
         self.selectingStart = False
         self.selectingEnd = False
         self.selectingObstacles = False
@@ -29,6 +28,8 @@ class DrawingBoard(QWidget):
 
         self.startPosition = None
         self.endPosition = None
+
+        self.algorithmHandler = AlgorithmHandler()
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
@@ -59,46 +60,36 @@ class DrawingBoard(QWidget):
 
     def setFullGrid(self):
         self.grid = Array('i', self.cellWidth * self.cellHeight)
-        del self.gridUpdates[:]
         for j in range(self.cellHeight):
             for i in range(self.cellWidth):
-                self.gridUpdates.append((i, j))
                 self.setGridElem(i, j, 0)
-        self.repaint()
+        self.update()
         self.comms.print.emit(
             "[DrawingBoard] Full Grid painting set Size: " + str(self.cellWidth) + " vs " + str(self.cellHeight))
 
     def clearGrid(self):
-        del self.gridUpdates[:]
+        self.grid = None
         self.startPosition = None
         self.endPosition = None
-        self.toClear = True
         self.comms.print.emit("[DrawingBoard] Grid cleared")
-        self.repaint()
+        self.update()
 
     def paintEvent(self, event):
-        if self.grid is None:
+        if self.grid is None:   # When grid is null it returns painting blank
             return
         painter = QPainter()
         painter.begin(self)
 
-        if self.toClear:
-            self.toClear = False
-            defaultPen = QPen(QColor("#ffffffff"), 2000, 2000)
-            painter.drawLine(0, 1000, 2000, 1000)
-        elif len(self.grid) > 0 and len(self.gridUpdates) > 0:
-            gridUpdates = self.gridUpdates[:]
+        currGrid = self.grid[:]
 
-            currGrid = self.grid[:]
+        pen_1 = QPen(CELL_COLLORS[0], CELL_SIZE)
+        pen_start = QPen(CELL_COLLORS[1], CELL_SIZE)
+        pen_end = QPen(CELL_COLLORS[2], CELL_SIZE)
+        pen_obstacles = QPen(CELL_COLLORS[3], CELL_SIZE)
 
-            pen_1 = QPen(CELL_COLLORS[0], CELL_SIZE)
-            pen_start = QPen(CELL_COLLORS[1], CELL_SIZE)
-            pen_end = QPen(CELL_COLLORS[2], CELL_SIZE)
-            pen_obstacles = QPen(CELL_COLLORS[3], CELL_SIZE)
-
-            while len(gridUpdates) > 0:
-                newUpdate = gridUpdates.pop()
-                currVal = currGrid[newUpdate[0] + self.cellWidth * newUpdate[1]]
+        for j in range(self.cellHeight):
+            for i in range(self.cellWidth):
+                currVal = currGrid[i + self.cellWidth * j]
                 if currVal == 0:
                     painter.setPen(pen_1)
                 elif currVal == 1:
@@ -108,8 +99,8 @@ class DrawingBoard(QWidget):
                 elif currVal == 3:
                     painter.setPen(pen_obstacles)
 
-                xCoord = newUpdate[0] * (CELL_SIZE + MIN_CELL_SPACING) + MIN_CELL_SPACING + CELL_SIZE // 2
-                yCoord = newUpdate[1] * (CELL_SIZE + MIN_CELL_SPACING) + MIN_CELL_SPACING + CELL_SIZE // 2
+                xCoord = i * (CELL_SIZE + MIN_CELL_SPACING) + MIN_CELL_SPACING + CELL_SIZE // 2
+                yCoord = j * (CELL_SIZE + MIN_CELL_SPACING) + MIN_CELL_SPACING + CELL_SIZE // 2
 
                 painter.drawLine(xCoord, yCoord, xCoord, yCoord)
 
@@ -125,7 +116,7 @@ class DrawingBoard(QWidget):
         self.grid[coordX + self.cellWidth * coordY] = val
 
     def handleMouseEvent(self, event):
-        if len(self.grid) == 0:
+        if self.grid is None:
             return
 
         if event.buttons() and QtCore.Qt.LeftButton:
@@ -145,15 +136,13 @@ class DrawingBoard(QWidget):
                 self.selectingStart = False
 
                 self.setGridElem(cellNumX, cellNumY, 1)
-                self.gridUpdates.append((cellNumX, cellNumY))
 
                 if self.startPosition is not None:
-                    self.setGridElem(self.endPosition[0], self.endPosition[1], 0)
-                    self.gridUpdates.append((self.startPosition[0], self.startPosition[1]))
+                    self.setGridElem(self.startPosition[0], self.startPosition[1], 0)
 
                 self.startPosition = (cellNumX, cellNumY)
 
-                self.repaint()
+                self.update()
                 self.comms.startSelected.emit()
                 self.comms.print.emit(
                     "[DrawingBoard] Selected Start position: X: " + str(cellNumX) + " Y:" + str(cellNumY))
@@ -164,15 +153,13 @@ class DrawingBoard(QWidget):
                 self.selectingEnd = False
 
                 self.setGridElem(cellNumX, cellNumY, 2)
-                self.gridUpdates.append((cellNumX, cellNumY))
 
                 if self.endPosition is not None:
                     self.setGridElem(self.endPosition[0], self.endPosition[1], 0)
-                    self.gridUpdates.append((self.endPosition[0], self.endPosition[1]))
 
                 self.endPosition = (cellNumX, cellNumY)
 
-                self.repaint()
+                self.update()
                 self.comms.endSelected.emit()
                 self.comms.print.emit(
                     "[DrawingBoard] Selected End position: X: " + str(cellNumX) + " Y:" + str(cellNumY))
@@ -183,11 +170,17 @@ class DrawingBoard(QWidget):
                     return
 
                 self.setGridElem(cellNumX, cellNumY, 3)
-                self.gridUpdates.append((cellNumX, cellNumY))
 
-                self.repaint()
+                self.update()
                 self.comms.print.emit(
                     "[DrawingBoard] Selected Obstacle position: X: " + str(cellNumX) + " Y:" + str(cellNumY))
 
+    def runAlgorithmPressed(self):
+        self.algorithmHandler.runAlgorithm()
+
+    def setAlgorithmPressed(self):
+        self.algorithmHandler.setAlgorithm("Dijkstra")
+
     def initComms(self, comms):
         self.comms = comms
+        self.algorithmHandler.initComms(comms)

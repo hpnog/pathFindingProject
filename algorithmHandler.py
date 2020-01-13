@@ -11,8 +11,6 @@ class AlgorithmHandler(object):
 
     def initComms(self, comms: Comms):
         self.comms = comms
-        self.comms.selectedAlgorithm.connect(self.setAlgorithm)
-        self.comms.runAlgorithm.connect(self.runAlgorithm)
 
     def setAlgorithm(self, alg):
         self.selectedAlgorithm = alg

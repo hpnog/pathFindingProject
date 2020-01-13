@@ -6,6 +6,3 @@ class Comms(QObject):
     endSelected = pyqtSignal()
 
     print = pyqtSignal(str)
-
-    selectedAlgorithm = pyqtSignal(str)
-    runAlgorithm = pyqtSignal()

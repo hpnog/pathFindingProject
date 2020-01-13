@@ -239,7 +239,7 @@ class Ui_MainWindow(object):
         self.pushButton_drawObstacles.setEnabled(not toggle)
 
         if toggle:
-            self.comms.runAlgorithm.emit()
+            self.problemwidget.runAlgorithmPressed()
 
     def initActions(self):
         self.pushButton_lockGrid.clicked.connect(self.setGridAndLockResize)
