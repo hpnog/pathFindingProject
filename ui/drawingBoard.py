@@ -83,7 +83,7 @@ class DrawingBoard(QWidget):
         self.update()
 
     def paintEvent(self, event):
-        if self.grid is None:   # When grid is null it returns painting blank
+        if self.grid is None:  # When grid is null it returns painting blank
             return
         painter = QPainter()
         painter.begin(self)
@@ -186,7 +186,16 @@ class DrawingBoard(QWidget):
                 self.comms.print.emit(
                     "[DrawingBoard] Selected Obstacle position: X: " + str(cellNumX) + " Y:" + str(cellNumY))
 
-    def runAlgorithmPressed(self):
+    def runAlgorithmPressed(self, unSelect=False):
+        if unSelect:
+            self.comms.algorithmInterrupt.clear()
+            self.comms.algorithmInterrupt.clear()
+            for thread in self.updateThreads:
+                thread.join()
+            del self.updateThreads[:]
+            self.algorithmHandler.joinProcesses()
+            return
+
         self.algorithmHandler.runAlgorithm(self.sharedQueue, self.grid, self.cellWidth, self.cellHeight)
 
         s = Timer(1, passiveWaitForAlgorithm, (self, 0))
@@ -198,6 +207,14 @@ class DrawingBoard(QWidget):
         #     thread.join()
         #
         # self.comms.print.emit("[DrawingBoard] All Drawing Algorithm Threads have ended")
+
+    def joinProcessesAndThreads(self):
+        self.comms.print.emit("[DrawingBoard] Waiting for threads to terminate")
+        for thread in self.updateThreads:
+            thread.join()
+        self.comms.print.emit("[DrawingBoard] Threads terminated. Going For processes")
+        self.algorithmHandler.joinProcesses()
+        self.comms.print.emit("[DrawingBoard] Processes terminated.")
 
     def setAlgorithmPressed(self):
         self.algorithmHandler.setAlgorithm("Dijkstra")
@@ -216,24 +233,25 @@ class DrawingBoard(QWidget):
 def passiveWaitForAlgorithm(drawingBoard: DrawingBoard, counter: int):
     update = None
     try:
-        update = drawingBoard.sharedQueue.get()
+        update = drawingBoard.sharedQueue.get(0)
     except Exception:
         update = None
 
     if drawingBoard.comms.algorithmInterrupt.is_set():
-        drawingBoard.comms.algorithmEnd.clear()
         return
     if update is None:
         if drawingBoard.comms.algorithmEnd.is_set():
-            drawingBoard.comms.print.emit("[THREAD][" + str(get_ident()) + "][DrawingBoard] Received AlgorithmEnd Signal - Iteration " + str(counter))
-            drawingBoard.comms.algorithmEnd.clear()
+            drawingBoard.comms.print.emit(
+                "[THREAD][" + str(get_ident()) + "][DrawingBoard] Received AlgorithmEnd Signal - Iteration " + str(
+                    counter))
             return
         drawingBoard.comms.print.emit(
             "[THREAD][" + str(get_ident()) + "][DrawingBoard] did NOT draw " + str(counter) + " iteration")
     else:
         drawingBoard.grid = update
         drawingBoard.update()
-        drawingBoard.comms.print.emit("[THREAD][" + str(get_ident()) + "][DrawingBoard] drawing " + str(counter) + " iteration done")
+        drawingBoard.comms.print.emit(
+            "[THREAD][" + str(get_ident()) + "][DrawingBoard] drawing " + str(counter) + " iteration done")
 
     s = Timer(1, passiveWaitForAlgorithm, (drawingBoard, counter + 1))
     drawingBoard.updateThreads.append(s)

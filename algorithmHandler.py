@@ -24,3 +24,8 @@ class AlgorithmHandler(object):
         self.processes.append(dijkstraProcess)
 
         dijkstraProcess.start()
+
+    def joinProcesses(self):
+        for process in self.processes:
+            process.join()
+        del self.processes[:]
