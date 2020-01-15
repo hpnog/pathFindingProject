@@ -231,7 +231,7 @@ class Ui_MainWindow(object):
         # Checks if one of the other buttons is enabled
         toggle = self.pushButton_unlockGrid.isEnabled()
 
-        self.pushButton_runAlgorithm.setDown(toggle)
+        self.pushButton_runAlgorithm.setEnabled(not toggle)
 
         self.pushButton_unlockGrid.setEnabled(not toggle)
         self.pushButton_selectStart.setEnabled(not toggle)
@@ -241,9 +241,7 @@ class Ui_MainWindow(object):
 
         if toggle:
             self.problemwidget.runAlgorithmPressed()
-
-    def selectedExit(self):
-        if self.comms.algorithmInterrupt.is_set() or self.comms.algorithmEnd.is_set():
+        else:
             self.problemwidget.joinProcessesAndThreads()
 
     def initActions(self):
@@ -259,8 +257,6 @@ class Ui_MainWindow(object):
         self.pushButton_drawObstacles.clicked.connect(self.selectObstaclesPressed)
 
         self.pushButton_runAlgorithm.clicked.connect(self.selectedRunAlgorithm)
-
-        self.actionExit.triggered.connect(self.selectedExit)
 
     def setTextsUi(self):
         self.mainWindow.setWindowTitle("Path Finding Algorithms")
@@ -290,3 +286,5 @@ class Ui_MainWindow(object):
         self.comms = comms
         self.problemwidget.initComms(comms)
         self.comms.print.connect(self.printToConsole)
+        self.comms.endParallelAlgorithmsAndThreads.connect(self.selectedRunAlgorithm)
+

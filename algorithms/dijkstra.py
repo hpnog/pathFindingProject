@@ -19,5 +19,4 @@ class Dijkstra(Process):
             self.gridQueue.put(gridUpdate)
 
         self.endSignal.set()
-        print("Exiting Dijkstra Algorithm Process")
 

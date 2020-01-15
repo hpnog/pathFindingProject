@@ -17,6 +17,7 @@ CELL_COLLORS = [
     QColor("#00FF00")  # Algorithm painter
 ]
 
+DRAWING_UPDATE_TIMER = 0.25
 
 class DrawingBoard(QWidget):
     def __init__(self, obj):
@@ -198,7 +199,7 @@ class DrawingBoard(QWidget):
 
         self.algorithmHandler.runAlgorithm(self.sharedQueue, self.grid, self.cellWidth, self.cellHeight)
 
-        s = Timer(1, passiveWaitForAlgorithm, (self, 0))
+        s = Timer(DRAWING_UPDATE_TIMER, passiveWaitForAlgorithm, (self, 0))
         self.updateThreads.append(s)
         s.start()
 
@@ -244,6 +245,7 @@ def passiveWaitForAlgorithm(drawingBoard: DrawingBoard, counter: int):
             drawingBoard.comms.print.emit(
                 "[THREAD][" + str(get_ident()) + "][DrawingBoard] Received AlgorithmEnd Signal - Iteration " + str(
                     counter))
+            drawingBoard.comms.endParallelAlgorithmsAndThreads.emit()
             return
         drawingBoard.comms.print.emit(
             "[THREAD][" + str(get_ident()) + "][DrawingBoard] did NOT draw " + str(counter) + " iteration")
@@ -253,6 +255,6 @@ def passiveWaitForAlgorithm(drawingBoard: DrawingBoard, counter: int):
         drawingBoard.comms.print.emit(
             "[THREAD][" + str(get_ident()) + "][DrawingBoard] drawing " + str(counter) + " iteration done")
 
-    s = Timer(1, passiveWaitForAlgorithm, (drawingBoard, counter + 1))
+    s = Timer(DRAWING_UPDATE_TIMER, passiveWaitForAlgorithm, (drawingBoard, counter + 1))
     drawingBoard.updateThreads.append(s)
     s.start()

@@ -8,4 +8,6 @@ class Comms(QObject):
     print = pyqtSignal(str)
 
     algorithmEnd = Event()
+    endParallelAlgorithmsAndThreads = pyqtSignal()
+
     algorithmInterrupt = Event()
