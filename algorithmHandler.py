@@ -20,7 +20,7 @@ class AlgorithmHandler(object):
 
     def runAlgorithm(self, gridQueue, grid, width, height):
         self.comms.print.emit("[AlgorithmHandler] Throwing Thread for " + self.selectedAlgorithm + " algorithm")
-        dijkstraProcess = Dijkstra(self.comms.algorithmEnd, gridQueue, grid, width, height)
+        dijkstraProcess = Dijkstra(self.comms.algorithmEnd, self.comms.algorithmInterrupt, gridQueue, grid, width, height)
         self.processes.append(dijkstraProcess)
 
         dijkstraProcess.start()

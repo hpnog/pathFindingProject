@@ -17,7 +17,7 @@ CELL_COLLORS = [
     QColor("#00FF00")  # Algorithm painter
 ]
 
-DRAWING_UPDATE_TIMER = 0.25
+DRAWING_UPDATE_TIMER = 1
 
 class DrawingBoard(QWidget):
     def __init__(self, obj):
@@ -187,18 +187,9 @@ class DrawingBoard(QWidget):
                 self.comms.print.emit(
                     "[DrawingBoard] Selected Obstacle position: X: " + str(cellNumX) + " Y:" + str(cellNumY))
 
-    def runAlgorithmPressed(self, unSelect=False):
-        if unSelect:
-            self.comms.algorithmInterrupt.clear()
-            self.comms.algorithmInterrupt.clear()
-            for thread in self.updateThreads:
-                thread.join()
-            del self.updateThreads[:]
-            self.algorithmHandler.joinProcesses()
-            return
-
+    def runAlgorithmPressed(self):
+        self.setFullGrid()
         self.algorithmHandler.runAlgorithm(self.sharedQueue, self.grid, self.cellWidth, self.cellHeight)
-
         s = Timer(DRAWING_UPDATE_TIMER, passiveWaitForAlgorithm, (self, 0))
         self.updateThreads.append(s)
         s.start()
@@ -215,7 +206,12 @@ class DrawingBoard(QWidget):
             thread.join()
         self.comms.print.emit("[DrawingBoard] Threads terminated. Going For processes")
         self.algorithmHandler.joinProcesses()
+        self.comms.algorithmEnd.clear()
+        self.comms.algorithmInterrupt.clear()
         self.comms.print.emit("[DrawingBoard] Processes terminated.")
+        
+        while not self.sharedQueue.empty():
+            self.sharedQueue.get()
 
     def setAlgorithmPressed(self):
         self.algorithmHandler.setAlgorithm("Dijkstra")
@@ -239,6 +235,10 @@ def passiveWaitForAlgorithm(drawingBoard: DrawingBoard, counter: int):
         update = None
 
     if drawingBoard.comms.algorithmInterrupt.is_set():
+        drawingBoard.comms.print.emit(
+            "[THREAD][" + str(get_ident()) + "][DrawingBoard] Received AlgorithmInterrupt Signal - Iteration " + str(
+            counter))
+        drawingBoard.comms.endParallelAlgorithmsAndThreads.emit()
         return
     if update is None:
         if drawingBoard.comms.algorithmEnd.is_set():

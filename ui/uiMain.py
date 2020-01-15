@@ -35,6 +35,7 @@ class Ui_MainWindow(object):
         self.menubar = None
         self.menuAlgorithm = None
         self.actionDijkstra = None
+        self.stopAlgorithm = None
         self.actionExport = None
         self.actionSave = None
         self.actionLoad = None
@@ -139,8 +140,9 @@ class Ui_MainWindow(object):
 
         # Menus
         self.menubar = QMenuBar(self.mainWindow)
-        self.menubar.setGeometry(0, 0, 600, 25)
         self.menubar.setObjectName("menubar")
+        self.cornerMenu = QMenuBar()
+        self.cornerMenu.setObjectName("cornerMenu")
 
         self.menuAlgorithm = QMenu(self.menubar)
         self.menuAlgorithm.setObjectName("menuAlgorithm")
@@ -148,6 +150,8 @@ class Ui_MainWindow(object):
         self.menuFile.setObjectName("menuFile")
         self.mainWindow.setMenuBar(self.menubar)
 
+        self.stopAlgorithm = QAction(self.mainWindow)
+        self.stopAlgorithm.setObjectName("stopAlgorithm")
         self.actionDijkstra = QAction(self.mainWindow)
         self.actionDijkstra.setObjectName("actionDijkstra")
         self.actionExport = QAction(self.mainWindow)
@@ -165,6 +169,8 @@ class Ui_MainWindow(object):
         self.menuFile.addAction(self.actionExit)
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuAlgorithm.menuAction())
+        self.cornerMenu.addAction(self.stopAlgorithm)
+        self.menubar.setCornerWidget(self.cornerMenu)
 
         # Status Bar
         self.statusbar = QStatusBar(self.mainWindow)
@@ -240,9 +246,14 @@ class Ui_MainWindow(object):
         self.pushButton_runAlgorithm.setEnabled(not toggle)
 
         if toggle:
+            self.comms.algorithmInterrupt.clear()
             self.problemwidget.runAlgorithmPressed()
         else:
             self.problemwidget.joinProcessesAndThreads()
+
+    def selectedInterruptAlgorithm(self):
+        self.comms.algorithmInterrupt.set()
+
 
     def initActions(self):
         self.pushButton_lockGrid.clicked.connect(self.setGridAndLockResize)
@@ -257,6 +268,8 @@ class Ui_MainWindow(object):
         self.pushButton_drawObstacles.clicked.connect(self.selectObstaclesPressed)
 
         self.pushButton_runAlgorithm.clicked.connect(self.selectedRunAlgorithm)
+        self.stopAlgorithm.triggered.connect(self.selectedInterruptAlgorithm)
+
 
     def setTextsUi(self):
         self.mainWindow.setWindowTitle("Path Finding Algorithms")
@@ -273,6 +286,7 @@ class Ui_MainWindow(object):
         self.actionSave.setText("Save")
         self.actionLoad.setText("Load")
         self.actionExit.setText("Exit")
+        self.stopAlgorithm.setText("Stop Algorithm")
         self.textBrowser.appendPlainText("<Begining of Output Console>")
 
     def printToConsole(self, string):
