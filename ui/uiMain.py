@@ -246,7 +246,6 @@ class Ui_MainWindow(object):
         self.pushButton_runAlgorithm.setEnabled(not toggle)
 
         if toggle:
-            self.comms.algorithmInterrupt.clear()
             self.problemwidget.runAlgorithmPressed()
         else:
             self.problemwidget.joinProcessesAndThreads()

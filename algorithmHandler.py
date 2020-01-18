@@ -8,6 +8,7 @@ class AlgorithmHandler(object):
         self.algorithms = ["Dijkstra"]
         self.selectedAlgorithm = "Dijkstra"
         self.processes = []
+        self.currQueue = None
 
         self.sharedQueue = sharedQueue
 
@@ -19,6 +20,7 @@ class AlgorithmHandler(object):
         self.comms.print.emit("[AlgorithmHandler] Selected " + alg)
 
     def runAlgorithm(self, gridQueue, grid, width, height):
+        self.currQueue = gridQueue # Needed to clear before joining process
         self.comms.print.emit("[AlgorithmHandler] Throwing Thread for " + self.selectedAlgorithm + " algorithm")
         dijkstraProcess = Dijkstra(self.comms.algorithmEnd, self.comms.algorithmInterrupt, gridQueue, grid, width, height)
         self.processes.append(dijkstraProcess)
@@ -26,6 +28,9 @@ class AlgorithmHandler(object):
         dijkstraProcess.start()
 
     def joinProcesses(self):
+        while not self.currQueue.empty():
+            self.currQueue.get()
+
         for process in self.processes:
             process.join()
         del self.processes[:]
