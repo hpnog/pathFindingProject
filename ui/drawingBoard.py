@@ -176,7 +176,6 @@ class DrawingBoard(QWidget):
                     "[DrawingBoard] Selected Obstacle position: X: " + str(cellNumX) + " Y:" + str(cellNumY))
 
     def runAlgorithmPressed(self):
-        self.setFullGrid()
         self.algorithmHandler.runAlgorithm(self.sharedQueue, self.grid, self.cellWidth, self.cellHeight)
         s = Timer(constants.DRAWING_UPDATE_TIMER, passiveWaitForAlgorithm, (self, 0))
         self.updateThreads.append(s)

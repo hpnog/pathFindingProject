@@ -7,6 +7,9 @@ class GraphNode(object):
     def getVal(self) -> int:
         return self.vertexVal
     
+    def getCoords(self) -> int:
+        return self.coords
+
     def getAdjacent(self) -> [object]:
         return self.adjacenctVertexes
 
