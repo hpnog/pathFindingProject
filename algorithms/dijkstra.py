@@ -76,14 +76,18 @@ class Dijkstra(Process):
         self.print("Algorithm ended")
         return 0
     
-    def visitNode(self, node: object) -> None:
+    def visitNode(self, node: object, currCost: int = 0) -> None:
         coords = node.getCoords()
         node.setVisited(True)
+        node.setCost(currCost)
 
         # Empty Node -> setVisited Color
         if self.currGrid[coords[1]][coords[0]] == 0: 
             self.currGrid[coords[1]][coords[0]] = 4
 
+        for neighboor in node.getAdjacent():
+            if currCost + 1 < neighboor.getCost():
+                neighboor.setCost(currCost + 1)
 
     def run(self) -> None:
         self.print("Building Graph structure")
