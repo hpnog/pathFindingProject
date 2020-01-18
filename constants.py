@@ -8,7 +8,7 @@ CELL_COLLORS = [
     QColor("#FF0000"),  # Starting Point
     QColor("#AA0000"),  # End Point
     QColor("#FFFF00"),  # Obstacles
-    QColor("#00FF00")  # Algorithm painter
+    QColor("#00FF00")  # Algorithm - visited
 ]
 
 DRAWING_UPDATE_TIMER = 1

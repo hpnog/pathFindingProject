@@ -67,11 +67,23 @@ class Dijkstra(Process):
         self.print("End Node selected was: " + str(self.endNode.getCoords()))
 
         # Dijkstra Algorithm Implementation ##############################
-
+        unvisitedNodes = self.graphNodes[:]
+        
+        self.visitNode(self.startingNode)
+        self.markUpdate()
         ##################################################################
 
         self.print("Algorithm ended")
         return 0
+    
+    def visitNode(self, node: object) -> None:
+        coords = node.getCoords()
+        node.setVisited(True)
+
+        # Empty Node -> setVisited Color
+        if self.currGrid[coords[1]][coords[0]] == 0: 
+            self.currGrid[coords[1]][coords[0]] = 4
+
 
     def run(self) -> None:
         self.print("Building Graph structure")
