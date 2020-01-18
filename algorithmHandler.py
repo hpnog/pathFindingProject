@@ -21,13 +21,15 @@ class AlgorithmHandler(object):
 
     def runAlgorithm(self, gridQueue, grid, width, height):
         self.currQueue = gridQueue # Needed to clear before joining process
-        self.comms.print.emit("[AlgorithmHandler] Throwing Thread for " + self.selectedAlgorithm + " algorithm")
+        self.comms.print.emit("[AlgorithmHandler] Throwing Process for " + self.selectedAlgorithm + " algorithm")
         dijkstraProcess = Dijkstra(self.comms.algorithmEnd, self.comms.algorithmInterrupt, gridQueue, grid, width, height)
         self.processes.append(dijkstraProcess)
 
         dijkstraProcess.start()
 
     def joinProcesses(self):
+        # [BUG-FIX] currQueue would hang when interrrputing as the process 
+        # might be trying to put information into a full queue
         while not self.currQueue.empty():
             self.currQueue.get()
 
