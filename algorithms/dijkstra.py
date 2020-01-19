@@ -3,6 +3,7 @@ import copy
 import constants
 from data_structures.graph import Graph
 import heapq
+import datetime
 
 class Dijkstra(Process):
     def __init__(self, agorithmEnd, algorithmInterrupt, gridQueue, grid, width, height, byStep):
@@ -98,11 +99,17 @@ class Dijkstra(Process):
         if self.algorithmInterrupt.is_set():
             return
 
+        algorithmStartTime = datetime.datetime.now()
+
         if self.findPath() == 0:
             self.print("Algorithm ended successfuly")
             self.getShortestPath()
         else:
             self.print("Algorithm ended with errors")
+
+        algorithmEndTime = datetime.datetime.now()
+        runTime = algorithmEndTime - algorithmStartTime
+        self.print("Algorithm execution took: " + str(runTime))
 
         self.markUpdate(True)    
         self.agorithmEnd.set()
