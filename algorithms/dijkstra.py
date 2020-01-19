@@ -2,6 +2,7 @@ from multiprocessing import Process
 import copy
 import constants
 from data_structures.graphNode import GraphNode
+import heapq
 
 class Dijkstra(Process):
     def __init__(self, agorithmEnd, algorithmInterrupt, gridQueue, grid, width, height):
@@ -17,6 +18,7 @@ class Dijkstra(Process):
         self.startingNode = None
         self.endNode = None
         self.graphNodes = []
+        self.queue = []
 
     def markUpdate(self) -> None:
         gridUpdate = copy.deepcopy(self.currGrid)
@@ -31,14 +33,16 @@ class Dijkstra(Process):
             for i in range(self.gridW):
                 newNode = GraphNode(self.currGrid[j][i], (i, j))
                 self.graphNodes.append(newNode)
+
+                self.print("Added node: " + str(newNode.getCoords()))
                 
                 # Setting starting point
                 if newNode.getVal() == 1:
-                    self.startingNode = newNode
+                    self.startingNode = self.graphNodes[i + j * self.gridW]
 
                 # Setting end point
                 if newNode.getVal() == 2:
-                    self.endNode = newNode
+                    self.endNode = self.graphNodes[i + j * self.gridW]
 
         self.print("Blank Nodes created. Adding Node edges.")
         # Add adjacencies to all nodes
@@ -46,14 +50,17 @@ class Dijkstra(Process):
         for j in range(self.gridH):
             for i in range(self.gridW):
                 if i > 0:   # add left adjacency
-                    self.graphNodes[i + j * self.gridH].addAjacent(self.graphNodes[i - 1 + j * self.gridH])
+                    self.graphNodes[i + j * self.gridW].addAjacent(self.graphNodes[(i - 1) + (j * self.gridW)])
                 if i < self.gridW - 1:   # add right adjacency
-                    self.graphNodes[i + j * self.gridH].addAjacent(self.graphNodes[i + 1 + j * self.gridH])
+                    self.graphNodes[i + j * self.gridW].addAjacent(self.graphNodes[(i + 1) + (j * self.gridW)])
                 if j > 0:   # add up adjacency
-                    self.graphNodes[i + j * self.gridH].addAjacent(self.graphNodes[i + (j - 1) * self.gridH])
+                    self.graphNodes[i + j * self.gridW].addAjacent(self.graphNodes[i + ((j - 1) * self.gridW)])
                 if j < self.gridH - 1:   # add down adjacency
-                    self.graphNodes[i + j * self.gridH].addAjacent(self.graphNodes[i + (j + 1) * self.gridH])
+                    self.graphNodes[i + j * self.gridW].addAjacent(self.graphNodes[i + ((j + 1) * self.gridW)])
+                self.print(self.graphNodes[i + j * self.gridW].printNeighboors())
         self.print("Node edges added.")
+
+        self.print("Starting adjacencies: " + str(self.startingNode.getAdjacent()))
 
     def findPath(self) -> int:
         if self.startingNode is None:
@@ -69,25 +76,37 @@ class Dijkstra(Process):
         # Dijkstra Algorithm Implementation ##############################
         unvisitedNodes = self.graphNodes[:]
         
+        self.startingNode.setCost(0)
         self.visitNode(self.startingNode)
-        self.markUpdate()
+        heapq.heappush(self.queue, self.startingNode)
+
+        # ??? INFITINE CYCLE ???
+        while len(self.queue) > 0:
+            currNode = heapq.heappop(self.queue)
+            newDistance = currNode.getCost() + 1
+            for neighboor in currNode.getAdjacent():
+                if newDistance < neighboor.getCost():
+                    neighboor.setPredecessor(currNode)
+                    neighboor.setCost(newDistance)
+                    self.visitNode(neighboor)
+                    heapq.heappush(self.queue, neighboor)
+
         ##################################################################
 
         self.print("Algorithm ended")
         return 0
     
-    def visitNode(self, node: object, currCost: int = 0) -> None:
+    def visitNode(self, node: object) -> None:
         coords = node.getCoords()
         node.setVisited(True)
-        node.setCost(currCost)
-
+        # node.setCost(currCost)
         # Empty Node -> setVisited Color
         if self.currGrid[coords[1]][coords[0]] == 0: 
             self.currGrid[coords[1]][coords[0]] = 4
 
-        for neighboor in node.getAdjacent():
-            if currCost + 1 < neighboor.getCost():
-                neighboor.setCost(currCost + 1)
+        self.print("Visiting Coordinates: " + str(coords) + " wich is: " + str(coords[0]) + ", " + str(coords[1]))
+
+        self.markUpdate()
 
     def run(self) -> None:
         self.print("Building Graph structure")
@@ -102,11 +121,11 @@ class Dijkstra(Process):
         else:
             self.print("Algorithm ended with errors")
 
-        # for j in range(self.gridH):
-        #     for i in range(self.gridW):
-        #         if self.algorithmInterrupt.is_set():
-        #             return
-        #         self.currGrid[j][i] = 4
+        for j in range(self.gridH):
+            for i in range(self.gridW):
+                if self.algorithmInterrupt.is_set():
+                    return
+                self.currGrid[j][i] = 4
         
 
         self.agorithmEnd.set()

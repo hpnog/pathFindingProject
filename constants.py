@@ -11,4 +11,4 @@ CELL_COLLORS = [
     QColor("#00FF00")  # Algorithm - visited
 ]
 
-DRAWING_UPDATE_TIMER = 1
+DRAWING_UPDATE_TIMER = 0.1
