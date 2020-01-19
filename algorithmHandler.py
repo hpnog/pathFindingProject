@@ -28,27 +28,20 @@ class AlgorithmHandler(object):
         dijkstraProcess.start()
 
     def joinProcesses(self):
-        
-        
         for process in self.processes:
+            # [BUG-FIX] currQueue needs to be cleared for the net process and or
+            # the current to end, as such, it needs to be cleared to allow the 
+            # process to flush its output
             processJoined = False
             attempt = 1
             while not processJoined:
                 self.comms.print.emit("Attemt " + str(attempt) + " to stop current process")
-                # [BUG-FIX] currQueue needs to be cleared for the net process
                 while not self.currQueue.empty():
                     self.currQueue.get()
-                self.comms.print.emit("[AlgorithmHandler] Removed All elements frmo Shared Queue")
-                self.comms.print.emit("[AlgorithmHandler] Waiting for process to join")
-                process.join(timeout=0.5)
+
+                process.join(timeout=0.1)
                 if not process.is_alive():
                     processJoined = True
                 attempt += 1
-            # if process.is_alive():
-            #     self.comms.print.emit("[AlgorithmHander] Algorithm Background Process did not terminate gracefuly. Forcing quit...")
-            #     process.terminate()
-            #     process.join(timeout=2)
-            # else:
-            #     self.comms.print.emit("[AlgorithmHander] Algorithm Background Process terminated gracefuly.")
 
         del self.processes[:]

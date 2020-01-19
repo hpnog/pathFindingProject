@@ -38,9 +38,9 @@ class DrawingBoard(QWidget):
         if newCellWidth != self.cellWidth or newCellHeight != self.cellHeight:
             self.cellWidth = newCellWidth
             self.cellHeight = newCellHeight
-            if self.comms:  # if already exists
-                self.comms.print.emit(
-                    "[DrawingBoard] New Width: " + str(newCellWidth) + " new height: " + str(newCellHeight))
+            # if self.comms:  # if already exists
+            #     self.comms.print.emit(
+            #         "[DrawingBoard] New Width: " + str(newCellWidth) + " new height: " + str(newCellHeight))
 
     def toggleSelectStart(self):
         self.selectingStart = not self.selectingStart
@@ -257,8 +257,8 @@ def passiveWaitForAlgorithm(drawingBoard: DrawingBoard, counter: int):
     else:
         drawingBoard.grid = update
         drawingBoard.update()
-        drawingBoard.comms.print.emit(
-            "[THREAD][" + str(get_ident()) + "][DrawingBoard] drawing " + str(counter) + " iteration done")
+        # drawingBoard.comms.print.emit(
+        #     "[THREAD][" + str(get_ident()) + "][DrawingBoard] drawing " + str(counter) + " iteration done")
 
     s = Timer(constants.DRAWING_UPDATE_TIMER, passiveWaitForAlgorithm, (drawingBoard, counter + 1))
     drawingBoard.updateThreads.append(s)
