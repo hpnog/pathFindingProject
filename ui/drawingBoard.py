@@ -17,6 +17,7 @@ class DrawingBoard(QWidget):
         self.selectingEnd = False
         self.selectingObstacles = False
         self.comms = None
+        self.gridNeedsCleaning = False
 
         self.startPosition = None
         self.endPosition = None
@@ -63,6 +64,16 @@ class DrawingBoard(QWidget):
         self.update()
         self.comms.print.emit(
             "[DrawingBoard] Full Grid painting set Size: " + str(self.cellWidth) + " vs " + str(self.cellHeight))
+    
+    def cleanFullGrid(self):
+        self.gridNeedsCleaning = False
+        for j in range(self.cellHeight):
+            for i in range(self.cellWidth):
+                if self.grid[j][i] > 3:
+                    self.grid[j][i] = 0
+        self.update()
+        self.comms.print.emit(
+            "[DrawingBoard] Full Grid cleaned")
 
     def clearGrid(self):
         self.grid = None
@@ -84,6 +95,7 @@ class DrawingBoard(QWidget):
         pen_end = QPen(constants.CELL_COLLORS[2], constants.CELL_SIZE)
         pen_obstacles = QPen(constants.CELL_COLLORS[3], constants.CELL_SIZE)
         pen_seen = QPen(constants.CELL_COLLORS[4], constants.CELL_SIZE)
+        pen_path = QPen(constants.CELL_COLLORS[5], constants.CELL_SIZE)
 
         for j in range(self.cellHeight):
             for i in range(self.cellWidth):
@@ -98,6 +110,8 @@ class DrawingBoard(QWidget):
                     painter.setPen(pen_obstacles)
                 elif currVal == 4:
                     painter.setPen(pen_seen)
+                elif currVal == 5:
+                    painter.setPen(pen_path)
 
                 xCoord = i * (constants.CELL_SIZE + constants.MIN_CELL_SPACING) + constants.MIN_CELL_SPACING + constants.CELL_SIZE // 2
                 yCoord = j * (constants.CELL_SIZE + constants.MIN_CELL_SPACING) + constants.MIN_CELL_SPACING + constants.CELL_SIZE // 2
@@ -118,6 +132,9 @@ class DrawingBoard(QWidget):
     def handleMouseEvent(self, event):
         if self.grid is None:
             return
+
+        if self.gridNeedsCleaning:
+            self.cleanFullGrid()
 
         if event.buttons() and QtCore.Qt.LeftButton:
             cellNumX = event.pos().x() // (constants.CELL_SIZE + constants.MIN_CELL_SPACING)
@@ -176,6 +193,10 @@ class DrawingBoard(QWidget):
                     "[DrawingBoard] Selected Obstacle position: X: " + str(cellNumX) + " Y:" + str(cellNumY))
 
     def runAlgorithmPressed(self):
+        if self.gridNeedsCleaning:
+            self.cleanFullGrid()
+        self.gridNeedsCleaning = True
+
         self.algorithmHandler.runAlgorithm(self.sharedQueue, self.grid, self.cellWidth, self.cellHeight)
         s = Timer(constants.DRAWING_UPDATE_TIMER, passiveWaitForAlgorithm, (self, 0))
         self.updateThreads.append(s)
@@ -196,9 +217,6 @@ class DrawingBoard(QWidget):
         self.comms.algorithmEnd.clear()
         self.comms.algorithmInterrupt.clear()
         self.comms.print.emit("[DrawingBoard] Processes terminated.")
-        
-        while not self.sharedQueue.empty():
-            self.sharedQueue.get()
 
     def setAlgorithmPressed(self):
         self.algorithmHandler.setAlgorithm("Dijkstra")

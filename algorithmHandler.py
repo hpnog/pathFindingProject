@@ -28,11 +28,27 @@ class AlgorithmHandler(object):
         dijkstraProcess.start()
 
     def joinProcesses(self):
-        # [BUG-FIX] currQueue would hang when interrrputing as the process 
-        # might be trying to put information into a full queue
-        while not self.currQueue.empty():
-            self.currQueue.get()
-
+        
+        
         for process in self.processes:
-            process.join()
+            processJoined = False
+            attempt = 1
+            while not processJoined:
+                self.comms.print.emit("Attemt " + str(attempt) + " to stop current process")
+                # [BUG-FIX] currQueue needs to be cleared for the net process
+                while not self.currQueue.empty():
+                    self.currQueue.get()
+                self.comms.print.emit("[AlgorithmHandler] Removed All elements frmo Shared Queue")
+                self.comms.print.emit("[AlgorithmHandler] Waiting for process to join")
+                process.join(timeout=0.5)
+                if not process.is_alive():
+                    processJoined = True
+                attempt += 1
+            # if process.is_alive():
+            #     self.comms.print.emit("[AlgorithmHander] Algorithm Background Process did not terminate gracefuly. Forcing quit...")
+            #     process.terminate()
+            #     process.join(timeout=2)
+            # else:
+            #     self.comms.print.emit("[AlgorithmHander] Algorithm Background Process terminated gracefuly.")
+
         del self.processes[:]

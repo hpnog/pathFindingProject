@@ -49,18 +49,29 @@ class Dijkstra(Process):
 
         for j in range(self.gridH):
             for i in range(self.gridW):
-                if i > 0:   # add left adjacency
+                if i > 0 and self.graphNodes[(i - 1) + (j * self.gridW)].getVal() != 3:   # add left adjacency
                     self.graphNodes[i + j * self.gridW].addAjacent(self.graphNodes[(i - 1) + (j * self.gridW)])
-                if i < self.gridW - 1:   # add right adjacency
+                if i < self.gridW - 1 and self.graphNodes[(i + 1) + (j * self.gridW)].getVal() != 3:   # add right adjacency
                     self.graphNodes[i + j * self.gridW].addAjacent(self.graphNodes[(i + 1) + (j * self.gridW)])
-                if j > 0:   # add up adjacency
+                if j > 0 and self.graphNodes[i + ((j - 1) * self.gridW)].getVal() != 3:   # add up adjacency
                     self.graphNodes[i + j * self.gridW].addAjacent(self.graphNodes[i + ((j - 1) * self.gridW)])
-                if j < self.gridH - 1:   # add down adjacency
+                if j < self.gridH - 1 and self.graphNodes[i + ((j + 1) * self.gridW)].getVal() != 3:   # add down adjacency
                     self.graphNodes[i + j * self.gridW].addAjacent(self.graphNodes[i + ((j + 1) * self.gridW)])
                 self.print(self.graphNodes[i + j * self.gridW].printNeighboors())
         self.print("Node edges added.")
 
         self.print("Starting adjacencies: " + str(self.startingNode.getAdjacent()))
+
+    def getShortestPath(self):
+        currNode = self.endNode.getPredecessor()
+        while currNode is not self.startingNode:
+            currCoords = currNode.getCoords()
+            self.print("Backtracking shortest path Vertice: " + str(currCoords))
+            if self.currGrid[currCoords[1]][currCoords[0]] == 4: 
+                self.currGrid[currCoords[1]][currCoords[0]] = 5
+            currNode = currNode.getPredecessor()
+
+        self.markUpdate()
 
     def findPath(self) -> int:
         if self.startingNode is None:
@@ -74,21 +85,24 @@ class Dijkstra(Process):
         self.print("End Node selected was: " + str(self.endNode.getCoords()))
 
         # Dijkstra Algorithm Implementation ##############################
-        unvisitedNodes = self.graphNodes[:]
+        foundEnd = False
         
         self.startingNode.setCost(0)
         self.visitNode(self.startingNode)
         heapq.heappush(self.queue, self.startingNode)
 
-        # ??? INFITINE CYCLE ???
-        while len(self.queue) > 0:
+        while len(self.queue) > 0 and not foundEnd:
             currNode = heapq.heappop(self.queue)
             newDistance = currNode.getCost() + 1
             for neighboor in currNode.getAdjacent():
                 if newDistance < neighboor.getCost():
                     neighboor.setPredecessor(currNode)
                     neighboor.setCost(newDistance)
-                    self.visitNode(neighboor)
+                    # NOTE: As we know that all vertices are all equally positioned
+                    # then when we find the end, it is already the best result
+                    # and there is no need to keep serching for a shorter path
+                    if self.visitNode(neighboor):
+                        foundEnd = True
                     heapq.heappush(self.queue, neighboor)
 
         ##################################################################
@@ -108,6 +122,10 @@ class Dijkstra(Process):
 
         self.markUpdate()
 
+        if node is self.endNode:
+            return True
+        return False
+
     def run(self) -> None:
         self.print("Building Graph structure")
         self.buildGraphStructure()
@@ -118,14 +136,17 @@ class Dijkstra(Process):
 
         if self.findPath() == 0:
             self.print("Algorithm ended successfuly")
+            self.getShortestPath()
         else:
             self.print("Algorithm ended with errors")
 
-        for j in range(self.gridH):
-            for i in range(self.gridW):
-                if self.algorithmInterrupt.is_set():
-                    return
-                self.currGrid[j][i] = 4
+        #for j in range(self.gridH):
+        #    for i in range(self.gridW):
+        #        if self.algorithmInterrupt.is_set():
+        #            return
+        #        self.currGrid[j][i] = 4
         
-
         self.agorithmEnd.set()
+
+        self.print("Process returning")
+        return

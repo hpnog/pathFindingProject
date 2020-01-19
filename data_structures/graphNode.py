@@ -36,6 +36,10 @@ class GraphNode(object):
     def setPredecessor(self, node):
         self.predecessor = node
 
+    def getPredecessor(self):
+        return self.predecessor
+
+
     def __cmp__(self, other):
         return self.cmp(self.cost, other.cost)
 

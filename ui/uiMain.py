@@ -2,12 +2,7 @@ from PyQt5.QtWidgets import QMenuBar, QMenu, QAction, QStatusBar, QWidget, QPlai
     QVBoxLayout, QHBoxLayout
 from PyQt5.QtGui import QColor
 from ui.drawingBoard import DrawingBoard
-
-MIN_WINDOW_WIDTH = 700
-MIN_WINDOW_HEIGHT = 500
-MAX_WINDOW_WIDTH = 4000
-MAX_WINDOW_HEIGHT = 2000
-
+from constants import *
 
 class Ui_MainWindow(object):
     def __init__(self, mainwindow):
