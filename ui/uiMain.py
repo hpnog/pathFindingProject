@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QMenuBar, QMenu, QAction, QStatusBar, QWidget, QPlainTextEdit, QPushButton, QFrame, \
+from PyQt5.QtWidgets import QMenuBar, QCheckBox, QLabel, QMenu, QAction, QStatusBar, QWidget, QPlainTextEdit, QPushButton, QFrame, \
     QVBoxLayout, QHBoxLayout
 from PyQt5.QtGui import QColor
 from ui.drawingBoard import DrawingBoard
@@ -36,6 +36,8 @@ class Ui_MainWindow(object):
         self.actionLoad = None
         self.actionExit = None
         self.menuFile = None
+        self.showByStepCheckBox = None
+        self.showByStepLabel = None
         # Status Bar
         self.statusbar = QStatusBar(self.mainWindow)
 
@@ -65,7 +67,7 @@ class Ui_MainWindow(object):
         self.bottomwidget = QWidget()
         self.bottomwidget.setAutoFillBackground(True)
         self.bottomwidget.setObjectName("bottomwidget")
-        self.bottomwidget.setMaximumHeight(250)
+        self.bottomwidget.setMaximumHeight(MAX_MENU_HEIGHT)
 
         self.bottomInteractionLayout = QHBoxLayout()
         self.bottomInteractionwidget = QWidget()
@@ -105,11 +107,25 @@ class Ui_MainWindow(object):
         self.pushButton_runAlgorithm.setObjectName("pushButton_runAlgorithm")
         self.pushButton_runAlgorithm.setEnabled(False)
 
+        self.showByStepCheckBoxWidget = QWidget()
+        self.showByStepCheckBoxLayout = QHBoxLayout()
+
+        self.showByStepCheckBox = QCheckBox()
+        self.showByStepCheckBox.setObjectName("showByStepCheckBox")
+        self.showByStepCheckBox.setChecked(True)
+
+        self.showByStepLabel = QLabel()
+        self.showByStepLabel.setText("Show Step-by-step")
+
         # Lines
         self.line = QFrame(self.bottomInteractionwidget)
         self.line.setFrameShape(QFrame.HLine)
         self.line.setFrameShadow(QFrame.Sunken)
         self.line.setObjectName("line")
+
+        self.showByStepCheckBoxLayout.addWidget(self.showByStepCheckBox)
+        self.showByStepCheckBoxLayout.addWidget(self.showByStepLabel)
+        self.showByStepCheckBoxWidget.setLayout(self.showByStepCheckBoxLayout)
 
         self.bottomButtonsLayout.addWidget(self.pushButton_lockGrid)
         self.bottomButtonsLayout.addWidget(self.pushButton_unlockGrid)
@@ -117,6 +133,7 @@ class Ui_MainWindow(object):
         self.bottomButtonsLayout.addWidget(self.pushButton_selectEnd)
         self.bottomButtonsLayout.addWidget(self.pushButton_drawObstacles)
         self.bottomButtonsLayout.addWidget(self.pushButton_runAlgorithm)
+        self.bottomButtonsLayout.addWidget(self.showByStepCheckBoxWidget)
         self.bottomButtonswidget.setLayout(self.bottomButtonsLayout)
 
         self.bottomInteractionLayout.addWidget(self.textBrowser)
@@ -241,7 +258,7 @@ class Ui_MainWindow(object):
         self.pushButton_runAlgorithm.setEnabled(not toggle)
 
         if toggle:
-            self.problemwidget.runAlgorithmPressed()
+            self.problemwidget.runAlgorithmPressed(self.showByStepCheckBox.isChecked())
         else:
             self.problemwidget.joinProcessesAndThreads()
 

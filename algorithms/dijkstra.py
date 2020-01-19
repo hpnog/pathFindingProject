@@ -5,7 +5,7 @@ from data_structures.graph import Graph
 import heapq
 
 class Dijkstra(Process):
-    def __init__(self, agorithmEnd, algorithmInterrupt, gridQueue, grid, width, height):
+    def __init__(self, agorithmEnd, algorithmInterrupt, gridQueue, grid, width, height, byStep):
         super().__init__()
         self.algorithmInterrupt = algorithmInterrupt
         self.agorithmEnd = agorithmEnd
@@ -13,10 +13,12 @@ class Dijkstra(Process):
 
         self.graph = Graph(grid, width, height)
         self.queue = []
+        self.byStep = byStep
 
-    def markUpdate(self) -> None:
-        gridUpdate = copy.deepcopy(self.graph.currGrid)
-        self.gridQueue.put(gridUpdate)
+    def markUpdate(self, force = False) -> None:
+        if force or self.byStep:
+            gridUpdate = copy.deepcopy(self.graph.currGrid)
+            self.gridQueue.put(gridUpdate)
 
     def print(self, string: str) -> None:
         print("[Dijkstra][PID-" + str(self.pid) + "] - " + string)
@@ -102,6 +104,7 @@ class Dijkstra(Process):
         else:
             self.print("Algorithm ended with errors")
 
+        self.markUpdate(True)    
         self.agorithmEnd.set()
 
         self.print("Process returning")

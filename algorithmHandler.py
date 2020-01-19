@@ -19,10 +19,10 @@ class AlgorithmHandler(object):
         self.selectedAlgorithm = self.algorithms[alg]
         self.comms.print.emit("[AlgorithmHandler] Selected " + self.algorithms[alg])
 
-    def runAlgorithm(self, gridQueue, grid, width, height):
+    def runAlgorithm(self, gridQueue, grid, width, height, byStep):
         self.currQueue = gridQueue # Needed to clear before joining process
         self.comms.print.emit("[AlgorithmHandler] Throwing Process for " + self.selectedAlgorithm + " algorithm")
-        dijkstraProcess = Dijkstra(self.comms.algorithmEnd, self.comms.algorithmInterrupt, gridQueue, grid, width, height)
+        dijkstraProcess = Dijkstra(self.comms.algorithmEnd, self.comms.algorithmInterrupt, gridQueue, grid, width, height, byStep)
         self.processes.append(dijkstraProcess)
 
         dijkstraProcess.start()
