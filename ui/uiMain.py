@@ -1,5 +1,4 @@
-from PyQt5.QtWidgets import QMenuBar, QCheckBox, QLabel, QMenu, QAction, QStatusBar, QWidget, QPlainTextEdit, QPushButton, QFrame, \
-    QVBoxLayout, QHBoxLayout
+from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QColor
 from ui.drawingBoard import DrawingBoard
 from constants import *
@@ -175,9 +174,12 @@ class Ui_MainWindow(object):
         self.actionExit = QAction(self.mainWindow)
         self.actionExit.setObjectName("actionExit")
         self.menuAlgorithm.addAction(self.actionDijkstra)
-        self.menuFile.addAction(self.actionSave)
-        self.menuFile.addAction(self.actionLoad)
-        self.menuFile.addAction(self.actionExport)
+
+        # No actions were implemented yet for these buttons
+        # self.menuFile.addAction(self.actionSave)
+        # self.menuFile.addAction(self.actionLoad)
+        # self.menuFile.addAction(self.actionExport)
+        
         self.menuFile.addAction(self.actionExit)
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuAlgorithm.menuAction())
@@ -268,6 +270,9 @@ class Ui_MainWindow(object):
     def selectedDijkstraAlgorithm(self):
         self.problemwidget.algorithmHandler.setAlgorithm(0)
 
+    def selectedExit(self):
+        QApplication.exit()
+
     def initActions(self):
         self.pushButton_lockGrid.clicked.connect(self.setGridAndLockResize)
         self.pushButton_unlockGrid.clicked.connect(self.clearGridAndUnlockResize)
@@ -283,6 +288,7 @@ class Ui_MainWindow(object):
         self.pushButton_runAlgorithm.clicked.connect(self.selectedRunAlgorithm)
         self.stopAlgorithm.triggered.connect(self.selectedInterruptAlgorithm)
         self.actionDijkstra.triggered.connect(self.selectedDijkstraAlgorithm)
+        self.actionExit.triggered.connect(self.selectedExit)
 
 
     def setTextsUi(self):
