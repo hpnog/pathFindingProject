@@ -140,8 +140,8 @@ class DrawingBoard(QWidget):
             cellNumX = event.pos().x() // (constants.CELL_SIZE + constants.MIN_CELL_SPACING)
             cellNumY = event.pos().y() // (constants.CELL_SIZE + constants.MIN_CELL_SPACING)
 
-            if cellNumX >= self.cellWidth or cellNumY >= self.cellHeight:
-                self.comms.print.emit("[DrawingBoard] Selected a Cell out of the drawn grid")
+            if cellNumX >= self.cellWidth or cellNumY >= self.cellHeight or cellNumX < 0 or cellNumY < 0:
+                # self.comms.print.emit("[DrawingBoard] Selected a Cell out of the drawn grid")
                 return
 
             gridElem = self.grid[cellNumY][cellNumX]

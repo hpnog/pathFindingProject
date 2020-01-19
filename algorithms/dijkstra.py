@@ -28,7 +28,7 @@ class Dijkstra(Process):
         currNode = self.graph.endNode.predecessor
         while currNode is not self.graph.startingNode:
             currCoords = currNode.coords
-            self.print("Backtracking shortest path Vertice: " + str(currCoords))
+            # self.print("Backtracking shortest path Vertice: " + str(currCoords))
             if self.graph.currGrid[currCoords[1]][currCoords[0]] == 4: 
                 self.graph.currGrid[currCoords[1]][currCoords[0]] = 5
             currNode = currNode.predecessor
