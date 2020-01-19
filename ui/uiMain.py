@@ -248,6 +248,8 @@ class Ui_MainWindow(object):
     def selectedInterruptAlgorithm(self):
         self.comms.algorithmInterrupt.set()
 
+    def selectedDijkstraAlgorithm(self):
+        self.problemwidget.algorithmHandler.setAlgorithm(0)
 
     def initActions(self):
         self.pushButton_lockGrid.clicked.connect(self.setGridAndLockResize)
@@ -263,6 +265,7 @@ class Ui_MainWindow(object):
 
         self.pushButton_runAlgorithm.clicked.connect(self.selectedRunAlgorithm)
         self.stopAlgorithm.triggered.connect(self.selectedInterruptAlgorithm)
+        self.actionDijkstra.triggered.connect(self.selectedDijkstraAlgorithm)
 
 
     def setTextsUi(self):

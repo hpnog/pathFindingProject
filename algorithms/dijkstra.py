@@ -33,8 +33,6 @@ class Dijkstra(Process):
             for i in range(self.gridW):
                 newNode = GraphNode(self.currGrid[j][i], (i, j))
                 self.graphNodes.append(newNode)
-
-                # self.print("Added node: " + str(newNode.coords))
                 
                 # Setting starting point
                 if newNode.vertexVal == 1:
@@ -108,6 +106,9 @@ class Dijkstra(Process):
         ##################################################################
 
         self.print("Algorithm ended")
+        if not foundEnd:
+            self.print("The end Node was not found.")
+            return 1
         return 0
     
     def visitNode(self, node: object) -> None:
@@ -117,8 +118,6 @@ class Dijkstra(Process):
         # Empty Node -> setVisited Color
         if self.currGrid[coords[1]][coords[0]] == 0: 
             self.currGrid[coords[1]][coords[0]] = 4
-
-        # self.print("Visiting Coordinates: " + str(coords) + " wich is: " + str(coords[0]) + ", " + str(coords[1]))
 
         self.markUpdate()
 
@@ -140,12 +139,6 @@ class Dijkstra(Process):
         else:
             self.print("Algorithm ended with errors")
 
-        #for j in range(self.gridH):
-        #    for i in range(self.gridW):
-        #        if self.algorithmInterrupt.is_set():
-        #            return
-        #        self.currGrid[j][i] = 4
-        
         self.agorithmEnd.set()
 
         self.print("Process returning")

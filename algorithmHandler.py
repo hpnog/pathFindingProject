@@ -16,8 +16,8 @@ class AlgorithmHandler(object):
         self.comms = comms
 
     def setAlgorithm(self, alg):
-        self.selectedAlgorithm = alg
-        self.comms.print.emit("[AlgorithmHandler] Selected " + alg)
+        self.selectedAlgorithm = self.algorithms[alg]
+        self.comms.print.emit("[AlgorithmHandler] Selected " + self.algorithms[alg])
 
     def runAlgorithm(self, gridQueue, grid, width, height):
         self.currQueue = gridQueue # Needed to clear before joining process
@@ -35,7 +35,7 @@ class AlgorithmHandler(object):
             processJoined = False
             attempt = 1
             while not processJoined:
-                self.comms.print.emit("Attemt " + str(attempt) + " to stop current process")
+                self.comms.print.emit("[AlgorithmHandler] Attemt " + str(attempt) + " to stop current process")
                 while not self.currQueue.empty():
                     self.currQueue.get()
 

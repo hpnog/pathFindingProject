@@ -202,12 +202,6 @@ class DrawingBoard(QWidget):
         self.updateThreads.append(s)
         s.start()
 
-        # NOTE: If join is set here, no logs will be printed and no drawings made
-        # for thread in self.updateThreads:
-        #     thread.join()
-        #
-        # self.comms.print.emit("[DrawingBoard] All Drawing Algorithm Threads have ended")
-
     def joinProcessesAndThreads(self):
         self.comms.print.emit("[DrawingBoard] Waiting for threads to terminate")
         for thread in self.updateThreads:
