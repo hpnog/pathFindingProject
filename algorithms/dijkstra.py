@@ -1,7 +1,7 @@
 from multiprocessing import Process
 import copy
 import constants
-from data_structures.graphNode import GraphNode
+from data_structures.graph import Graph
 import heapq
 
 class Dijkstra(Process):
@@ -11,83 +11,44 @@ class Dijkstra(Process):
         self.agorithmEnd = agorithmEnd
         self.gridQueue = gridQueue
 
-        self.currGrid = copy.deepcopy(grid)
-        self.gridW = width
-        self.gridH = height
-        
-        self.startingNode = None
-        self.endNode = None
-        self.graphNodes = []
+        self.graph = Graph(grid, width, height)
         self.queue = []
 
     def markUpdate(self) -> None:
-        gridUpdate = copy.deepcopy(self.currGrid)
+        gridUpdate = copy.deepcopy(self.graph.currGrid)
         self.gridQueue.put(gridUpdate)
 
     def print(self, string: str) -> None:
         print("[Dijkstra][PID-" + str(self.pid) + "] - " + string)
 
-    def buildGraphStructure(self) -> None:
-        # Create all graph nodes with no dependencies
-        for j in range(self.gridH):
-            for i in range(self.gridW):
-                newNode = GraphNode(self.currGrid[j][i], (i, j))
-                self.graphNodes.append(newNode)
-                
-                # Setting starting point
-                if newNode.vertexVal == 1:
-                    self.startingNode = self.graphNodes[i + j * self.gridW]
-
-                # Setting end point
-                if newNode.vertexVal == 2:
-                    self.endNode = self.graphNodes[i + j * self.gridW]
-
-        self.print("Blank Nodes created. Adding Node edges.")
-        # Add adjacencies to all nodes
-
-        for j in range(self.gridH):
-            for i in range(self.gridW):
-                if i > 0 and self.graphNodes[(i - 1) + (j * self.gridW)].vertexVal != 3:   # add left adjacency
-                    self.graphNodes[i + j * self.gridW].adjacentVertexes.append(self.graphNodes[(i - 1) + (j * self.gridW)])
-                if i < self.gridW - 1 and self.graphNodes[(i + 1) + (j * self.gridW)].vertexVal != 3:   # add right adjacency
-                    self.graphNodes[i + j * self.gridW].adjacentVertexes.append(self.graphNodes[(i + 1) + (j * self.gridW)])
-                if j > 0 and self.graphNodes[i + ((j - 1) * self.gridW)].vertexVal != 3:   # add up adjacency
-                    self.graphNodes[i + j * self.gridW].adjacentVertexes.append(self.graphNodes[i + ((j - 1) * self.gridW)])
-                if j < self.gridH - 1 and self.graphNodes[i + ((j + 1) * self.gridW)].vertexVal != 3:   # add down adjacency
-                    self.graphNodes[i + j * self.gridW].adjacentVertexes.append(self.graphNodes[i + ((j + 1) * self.gridW)])
-                
-                # The following print prints all neighboors of node
-                # self.print(self.graphNodes[i + j * self.gridW].printNeighboors())
-        self.print("Node edges added.")
-
     def getShortestPath(self):
-        currNode = self.endNode.predecessor
-        while currNode is not self.startingNode:
+        currNode = self.graph.endNode.predecessor
+        while currNode is not self.graph.startingNode:
             currCoords = currNode.coords
             self.print("Backtracking shortest path Vertice: " + str(currCoords))
-            if self.currGrid[currCoords[1]][currCoords[0]] == 4: 
-                self.currGrid[currCoords[1]][currCoords[0]] = 5
+            if self.graph.currGrid[currCoords[1]][currCoords[0]] == 4: 
+                self.graph.currGrid[currCoords[1]][currCoords[0]] = 5
             currNode = currNode.predecessor
 
         self.markUpdate()
 
     def findPath(self) -> int:
-        if self.startingNode is None:
+        if self.graph.startingNode is None:
             self.print("No Starting node was defined")
             return 1
-        elif self.endNode is None:
+        elif self.graph.endNode is None:
             self.print("No End node was defined")
             return 2
 
-        self.print("Starting Node selected was: " + str(self.startingNode.coords))
-        self.print("End Node selected was: " + str(self.endNode.coords))
+        self.print("Starting Node selected was: " + str(self.graph.startingNode.coords))
+        self.print("End Node selected was: " + str(self.graph.endNode.coords))
 
         # Dijkstra Algorithm Implementation ##############################
         foundEnd = False
         
-        self.startingNode.cost = 0
-        self.visitNode(self.startingNode)
-        heapq.heappush(self.queue, self.startingNode)
+        self.graph.startingNode.cost = 0
+        self.visitNode(self.graph.startingNode)
+        heapq.heappush(self.queue, self.graph.startingNode)
 
         while len(self.queue) > 0 and not foundEnd:
             currNode = heapq.heappop(self.queue)
@@ -116,18 +77,20 @@ class Dijkstra(Process):
         node.visited = True
 
         # Empty Node -> setVisited Color
-        if self.currGrid[coords[1]][coords[0]] == 0: 
-            self.currGrid[coords[1]][coords[0]] = 4
+        if self.graph.currGrid[coords[1]][coords[0]] == 0: 
+            self.graph.currGrid[coords[1]][coords[0]] = 4
 
         self.markUpdate()
 
-        if node is self.endNode:
+        if node is self.graph.endNode:
             return True
         return False
 
     def run(self) -> None:
+        self.graph.pid = self.pid
+
         self.print("Building Graph structure")
-        self.buildGraphStructure()
+        self.graph.buildGraphStructure()
         self.print("Graph structure built")
 
         if self.algorithmInterrupt.is_set():
