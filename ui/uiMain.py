@@ -2,12 +2,7 @@ from PyQt5.QtWidgets import QMenuBar, QMenu, QAction, QStatusBar, QWidget, QPlai
     QVBoxLayout, QHBoxLayout
 from PyQt5.QtGui import QColor
 from ui.drawingBoard import DrawingBoard
-
-MIN_WINDOW_WIDTH = 700
-MIN_WINDOW_HEIGHT = 500
-MAX_WINDOW_WIDTH = 4000
-MAX_WINDOW_HEIGHT = 2000
-
+from constants import *
 
 class Ui_MainWindow(object):
     def __init__(self, mainwindow):
@@ -253,6 +248,8 @@ class Ui_MainWindow(object):
     def selectedInterruptAlgorithm(self):
         self.comms.algorithmInterrupt.set()
 
+    def selectedDijkstraAlgorithm(self):
+        self.problemwidget.algorithmHandler.setAlgorithm(0)
 
     def initActions(self):
         self.pushButton_lockGrid.clicked.connect(self.setGridAndLockResize)
@@ -268,6 +265,7 @@ class Ui_MainWindow(object):
 
         self.pushButton_runAlgorithm.clicked.connect(self.selectedRunAlgorithm)
         self.stopAlgorithm.triggered.connect(self.selectedInterruptAlgorithm)
+        self.actionDijkstra.triggered.connect(self.selectedDijkstraAlgorithm)
 
 
     def setTextsUi(self):

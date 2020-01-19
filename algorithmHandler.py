@@ -16,8 +16,8 @@ class AlgorithmHandler(object):
         self.comms = comms
 
     def setAlgorithm(self, alg):
-        self.selectedAlgorithm = alg
-        self.comms.print.emit("[AlgorithmHandler] Selected " + alg)
+        self.selectedAlgorithm = self.algorithms[alg]
+        self.comms.print.emit("[AlgorithmHandler] Selected " + self.algorithms[alg])
 
     def runAlgorithm(self, gridQueue, grid, width, height):
         self.currQueue = gridQueue # Needed to clear before joining process
@@ -28,11 +28,20 @@ class AlgorithmHandler(object):
         dijkstraProcess.start()
 
     def joinProcesses(self):
-        # [BUG-FIX] currQueue would hang when interrrputing as the process 
-        # might be trying to put information into a full queue
-        while not self.currQueue.empty():
-            self.currQueue.get()
-
         for process in self.processes:
-            process.join()
+            # [BUG-FIX] currQueue needs to be cleared for the net process and or
+            # the current to end, as such, it needs to be cleared to allow the 
+            # process to flush its output
+            processJoined = False
+            attempt = 1
+            while not processJoined:
+                self.comms.print.emit("[AlgorithmHandler] Attemt " + str(attempt) + " to stop current process")
+                while not self.currQueue.empty():
+                    self.currQueue.get()
+
+                process.join(timeout=0.1)
+                if not process.is_alive():
+                    processJoined = True
+                attempt += 1
+
         del self.processes[:]

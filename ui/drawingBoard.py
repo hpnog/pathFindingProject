@@ -1,23 +1,11 @@
 from PyQt5.QtWidgets import QWidget
-from PyQt5.QtGui import QPainter, QPen, QColor
+from PyQt5.QtGui import QPainter, QPen
 from PyQt5 import QtCore
 from multiprocessing import Queue
 from threading import Timer, get_ident
 from algorithmHandler import AlgorithmHandler
 import time
-
-CELL_SIZE = 20
-MIN_CELL_SPACING = 1
-
-CELL_COLLORS = [
-    QColor("#CCCCCC"),  # Empty
-    QColor("#FF0000"),  # Starting Point
-    QColor("#AA0000"),  # End Point
-    QColor("#FFFF00"),  # Obstacles
-    QColor("#00FF00")  # Algorithm painter
-]
-
-DRAWING_UPDATE_TIMER = 1
+import constants
 
 class DrawingBoard(QWidget):
     def __init__(self, obj):
@@ -29,6 +17,7 @@ class DrawingBoard(QWidget):
         self.selectingEnd = False
         self.selectingObstacles = False
         self.comms = None
+        self.gridNeedsCleaning = False
 
         self.startPosition = None
         self.endPosition = None
@@ -43,15 +32,15 @@ class DrawingBoard(QWidget):
 
         newWidth = self.width()
         newHeight = self.height()
-        newCellWidth = newWidth // (CELL_SIZE + MIN_CELL_SPACING)
-        newCellHeight = newHeight // (CELL_SIZE + MIN_CELL_SPACING)
+        newCellWidth = newWidth // (constants.CELL_SIZE + constants.MIN_CELL_SPACING)
+        newCellHeight = newHeight // (constants.CELL_SIZE + constants.MIN_CELL_SPACING)
 
         if newCellWidth != self.cellWidth or newCellHeight != self.cellHeight:
             self.cellWidth = newCellWidth
             self.cellHeight = newCellHeight
-            if self.comms:  # if already exists
-                self.comms.print.emit(
-                    "[DrawingBoard] New Width: " + str(newCellWidth) + " new height: " + str(newCellHeight))
+            # if self.comms:  # if already exists
+            #     self.comms.print.emit(
+            #         "[DrawingBoard] New Width: " + str(newCellWidth) + " new height: " + str(newCellHeight))
 
     def toggleSelectStart(self):
         self.selectingStart = not self.selectingStart
@@ -75,6 +64,16 @@ class DrawingBoard(QWidget):
         self.update()
         self.comms.print.emit(
             "[DrawingBoard] Full Grid painting set Size: " + str(self.cellWidth) + " vs " + str(self.cellHeight))
+    
+    def cleanFullGrid(self):
+        self.gridNeedsCleaning = False
+        for j in range(self.cellHeight):
+            for i in range(self.cellWidth):
+                if self.grid[j][i] > 3:
+                    self.grid[j][i] = 0
+        self.update()
+        self.comms.print.emit(
+            "[DrawingBoard] Full Grid cleaned")
 
     def clearGrid(self):
         self.grid = None
@@ -91,11 +90,12 @@ class DrawingBoard(QWidget):
 
         currGrid = self.grid[:]
 
-        pen_1 = QPen(CELL_COLLORS[0], CELL_SIZE)
-        pen_start = QPen(CELL_COLLORS[1], CELL_SIZE)
-        pen_end = QPen(CELL_COLLORS[2], CELL_SIZE)
-        pen_obstacles = QPen(CELL_COLLORS[3], CELL_SIZE)
-        pen_seen = QPen(CELL_COLLORS[4], CELL_SIZE)
+        pen_1 = QPen(constants.CELL_COLLORS[0], constants.CELL_SIZE)
+        pen_start = QPen(constants.CELL_COLLORS[1], constants.CELL_SIZE)
+        pen_end = QPen(constants.CELL_COLLORS[2], constants.CELL_SIZE)
+        pen_obstacles = QPen(constants.CELL_COLLORS[3], constants.CELL_SIZE)
+        pen_seen = QPen(constants.CELL_COLLORS[4], constants.CELL_SIZE)
+        pen_path = QPen(constants.CELL_COLLORS[5], constants.CELL_SIZE)
 
         for j in range(self.cellHeight):
             for i in range(self.cellWidth):
@@ -110,9 +110,11 @@ class DrawingBoard(QWidget):
                     painter.setPen(pen_obstacles)
                 elif currVal == 4:
                     painter.setPen(pen_seen)
+                elif currVal == 5:
+                    painter.setPen(pen_path)
 
-                xCoord = i * (CELL_SIZE + MIN_CELL_SPACING) + MIN_CELL_SPACING + CELL_SIZE // 2
-                yCoord = j * (CELL_SIZE + MIN_CELL_SPACING) + MIN_CELL_SPACING + CELL_SIZE // 2
+                xCoord = i * (constants.CELL_SIZE + constants.MIN_CELL_SPACING) + constants.MIN_CELL_SPACING + constants.CELL_SIZE // 2
+                yCoord = j * (constants.CELL_SIZE + constants.MIN_CELL_SPACING) + constants.MIN_CELL_SPACING + constants.CELL_SIZE // 2
 
                 painter.drawLine(xCoord, yCoord, xCoord, yCoord)
 
@@ -131,9 +133,12 @@ class DrawingBoard(QWidget):
         if self.grid is None:
             return
 
+        if self.gridNeedsCleaning:
+            self.cleanFullGrid()
+
         if event.buttons() and QtCore.Qt.LeftButton:
-            cellNumX = event.pos().x() // (CELL_SIZE + MIN_CELL_SPACING)
-            cellNumY = event.pos().y() // (CELL_SIZE + MIN_CELL_SPACING)
+            cellNumX = event.pos().x() // (constants.CELL_SIZE + constants.MIN_CELL_SPACING)
+            cellNumY = event.pos().y() // (constants.CELL_SIZE + constants.MIN_CELL_SPACING)
 
             if cellNumX >= self.cellWidth or cellNumY >= self.cellHeight:
                 self.comms.print.emit("[DrawingBoard] Selected a Cell out of the drawn grid")
@@ -188,17 +193,14 @@ class DrawingBoard(QWidget):
                     "[DrawingBoard] Selected Obstacle position: X: " + str(cellNumX) + " Y:" + str(cellNumY))
 
     def runAlgorithmPressed(self):
-        self.setFullGrid()
+        if self.gridNeedsCleaning:
+            self.cleanFullGrid()
+        self.gridNeedsCleaning = True
+
         self.algorithmHandler.runAlgorithm(self.sharedQueue, self.grid, self.cellWidth, self.cellHeight)
-        s = Timer(DRAWING_UPDATE_TIMER, passiveWaitForAlgorithm, (self, 0))
+        s = Timer(constants.DRAWING_UPDATE_TIMER, passiveWaitForAlgorithm, (self, 0))
         self.updateThreads.append(s)
         s.start()
-
-        # NOTE: If join is set here, no logs will be printed and no drawings made
-        # for thread in self.updateThreads:
-        #     thread.join()
-        #
-        # self.comms.print.emit("[DrawingBoard] All Drawing Algorithm Threads have ended")
 
     def joinProcessesAndThreads(self):
         self.comms.print.emit("[DrawingBoard] Waiting for threads to terminate")
@@ -209,9 +211,6 @@ class DrawingBoard(QWidget):
         self.comms.algorithmEnd.clear()
         self.comms.algorithmInterrupt.clear()
         self.comms.print.emit("[DrawingBoard] Processes terminated.")
-        
-        while not self.sharedQueue.empty():
-            self.sharedQueue.get()
 
     def setAlgorithmPressed(self):
         self.algorithmHandler.setAlgorithm("Dijkstra")
@@ -252,9 +251,9 @@ def passiveWaitForAlgorithm(drawingBoard: DrawingBoard, counter: int):
     else:
         drawingBoard.grid = update
         drawingBoard.update()
-        drawingBoard.comms.print.emit(
-            "[THREAD][" + str(get_ident()) + "][DrawingBoard] drawing " + str(counter) + " iteration done")
+        # drawingBoard.comms.print.emit(
+        #     "[THREAD][" + str(get_ident()) + "][DrawingBoard] drawing " + str(counter) + " iteration done")
 
-    s = Timer(DRAWING_UPDATE_TIMER, passiveWaitForAlgorithm, (drawingBoard, counter + 1))
+    s = Timer(constants.DRAWING_UPDATE_TIMER, passiveWaitForAlgorithm, (drawingBoard, counter + 1))
     drawingBoard.updateThreads.append(s)
     s.start()
